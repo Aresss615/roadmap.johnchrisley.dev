@@ -1,965 +1,1484 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jc's Roadmap to $1M · johnchrisley.dev</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #07090d;
-    --surface: #0e1117;
-    --surface2: #161b24;
-    --border: #1e2635;
-    --text: #dce6f0;
-    --muted: #4a5568;
-    --faint: #1a2030;
-
-    --p1: #22d3ee;
-    --p1-dim: rgba(34,211,238,0.12);
-    --p1-glow: rgba(34,211,238,0.25);
-    --p2: #a78bfa;
-    --p2-dim: rgba(167,139,250,0.12);
-    --p2-glow: rgba(167,139,250,0.25);
-    --p3: #fb923c;
-    --p3-dim: rgba(251,146,60,0.12);
-    --p3-glow: rgba(251,146,60,0.25);
-    --p4: #fbbf24;
-    --p4-dim: rgba(251,191,36,0.12);
-    --p4-glow: rgba(251,191,36,0.3);
-
-    --font-display: 'Syne', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-mono);
-    font-size: 14px;
-    line-height: 1.6;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* ── GRID BACKGROUND ── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(34,211,238,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 0 20px 80px;
-  }
-
-  /* ── HEADER ── */
-  header {
-    padding: 60px 0 48px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 48px;
-  }
-
-  .header-tag {
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
-
-  .header-tag span {
-    color: var(--p1);
-  }
-
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(28px, 5vw, 46px);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    margin-bottom: 12px;
-  }
-
-  h1 em {
-    font-style: normal;
-    background: linear-gradient(90deg, var(--p4), var(--p3));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .header-sub {
-    color: var(--muted);
-    font-size: 13px;
-    margin-top: 8px;
-  }
-
-  /* ── OVERALL PROGRESS ── */
-  .overall-progress {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px 28px;
-    margin-bottom: 48px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .overall-left {
-    flex: 1;
-  }
-
-  .overall-label {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 10px;
-  }
-
-  .overall-bar-wrap {
-    height: 8px;
-    background: var(--faint);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .overall-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--p1), var(--p4));
-    border-radius: 99px;
-    transition: width 0.6s cubic-bezier(.4,0,.2,1);
-    width: 0%;
-  }
-
-  .overall-right {
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .overall-pct {
-    font-family: var(--font-display);
-    font-size: 36px;
-    font-weight: 800;
-    line-height: 1;
-    background: linear-gradient(135deg, var(--p1), var(--p4));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .overall-fraction {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  /* ── PHASE ── */
-  .phase {
-    margin-bottom: 36px;
-  }
-
-  .phase-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 20px;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .phase-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-top: 6px;
-    flex-shrink: 0;
-    box-shadow: 0 0 10px currentColor;
-  }
-
-  .phase-header-text { flex: 1; }
-
-  .phase-num {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .phase-title {
-    font-family: var(--font-display);
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-  }
-
-  .phase-timeline {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  .phase-toggle {
-    font-size: 18px;
-    color: var(--muted);
-    transition: transform 0.25s ease;
-    line-height: 1;
-    margin-top: 4px;
-  }
-
-  .phase.collapsed .phase-toggle { transform: rotate(-90deg); }
-
-  /* phase progress bar */
-  .phase-progress-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-
-  .phase-bar-wrap {
-    flex: 1;
-    height: 5px;
-    background: var(--faint);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .phase-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    transition: width 0.5s cubic-bezier(.4,0,.2,1);
-    width: 0%;
-  }
-
-  .phase-bar-text {
-    font-size: 11px;
-    min-width: 36px;
-    text-align: right;
-  }
-
-  /* tasks */
-  .tasks-wrap {
-    overflow: hidden;
-    transition: max-height 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;
-    max-height: 2000px;
-    opacity: 1;
-  }
-
-  .phase.collapsed .tasks-wrap {
-    max-height: 0;
-    opacity: 0;
-  }
-
-  .tasks {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    border-left: 2px solid var(--border);
-    padding-left: 20px;
-    margin-left: 5px;
-  }
-
-  .task {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 12px 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, transform 0.15s;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .task:hover {
-    border-color: var(--muted);
-    background: var(--surface2);
-    transform: translateX(2px);
-  }
-
-  .task.done {
-    opacity: 0.55;
-  }
-
-  .task.done .task-label {
-    text-decoration: line-through;
-    color: var(--muted);
-  }
-
-  .task.just-checked {
-    animation: pop 0.35s cubic-bezier(.4,0,.2,1);
-  }
-
-  @keyframes pop {
-    0%   { transform: translateX(2px) scale(1); }
-    40%  { transform: translateX(2px) scale(1.025); }
-    100% { transform: translateX(2px) scale(1); }
-  }
-
-  /* custom checkbox */
-  .cb {
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    border: 2px solid var(--muted);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-    margin-top: 1px;
-    font-size: 13px;
-  }
-
-  .task.done .cb {
-    border-color: currentColor;
-    background: currentColor;
-    box-shadow: 0 0 8px currentColor;
-  }
-
-  .task.done .cb::after {
-    content: '✓';
-    color: var(--bg);
-    font-weight: 700;
-  }
-
-  .task-text { flex: 1; }
-
-  .task-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.4;
-    transition: color 0.2s;
-  }
-
-  .task-sub {
-    display: block;
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  /* ── PHASE COLORS ── */
-  .p1 { color: var(--p1); }
-  .p1 .phase-dot { color: var(--p1); background: var(--p1); }
-  .p1 .phase-bar-fill { background: var(--p1); }
-  .p1 .task.done .cb { color: var(--p1); }
-  .p1 .task:hover { border-color: var(--p1); background: var(--p1-dim); }
-
-  .p2 { color: var(--p2); }
-  .p2 .phase-dot { color: var(--p2); background: var(--p2); }
-  .p2 .phase-bar-fill { background: var(--p2); }
-  .p2 .task.done .cb { color: var(--p2); }
-  .p2 .task:hover { border-color: var(--p2); background: var(--p2-dim); }
-
-  .p3 { color: var(--p3); }
-  .p3 .phase-dot { color: var(--p3); background: var(--p3); }
-  .p3 .phase-bar-fill { background: var(--p3); }
-  .p3 .task.done .cb { color: var(--p3); }
-  .p3 .task:hover { border-color: var(--p3); background: var(--p3-dim); }
-
-  .p4 { color: var(--p4); }
-  .p4 .phase-dot { color: var(--p4); background: var(--p4); }
-  .p4 .phase-bar-fill { background: var(--p4); }
-  .p4 .task.done .cb { color: var(--p4); }
-  .p4 .task:hover { border-color: var(--p4); background: var(--p4-dim); }
-
-  /* ── PHASE COMPLETE BANNER ── */
-  .phase-complete {
-    display: none;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    animation: slideIn 0.4s cubic-bezier(.4,0,.2,1);
-  }
-
-  .phase-complete.show { display: flex; }
-
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .p1 .phase-complete { background: var(--p1-glow); border: 1px solid var(--p1); }
-  .p2 .phase-complete { background: var(--p2-glow); border: 1px solid var(--p2); }
-  .p3 .phase-complete { background: var(--p3-glow); border: 1px solid var(--p3); }
-  .p4 .phase-complete { background: var(--p4-glow); border: 1px solid var(--p4); }
-
-  /* ── FOOTER ── */
-  footer {
-    margin-top: 60px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .footer-left {
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .footer-left span { color: var(--p1); }
-
-  .reset-btn {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--muted);
-    background: none;
-    border: 1px solid var(--border);
-    padding: 6px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-    letter-spacing: 0.05em;
-  }
-
-  .reset-btn:hover { border-color: var(--muted); color: var(--text); }
-
-  /* ── CONFETTI ── */
-  .confetti-wrap {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 999;
-  }
-
-  .confetti-piece {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-    top: -10px;
-    animation: fall linear forwards;
-  }
-
-  @keyframes fall {
-    to {
-      transform: translateY(110vh) rotate(720deg);
-      opacity: 0;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Engineering Roadmap | johnchrisley.dev</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07090d;
+      --surface: #0e1117;
+      --surface-2: #131927;
+      --surface-3: #1a2030;
+      --border: #1f2738;
+      --text: #dce6f0;
+      --muted: #6b7890;
+      --faint: #111827;
+
+      --p1: #22d3ee;
+      --p2: #a78bfa;
+      --p3: #fb923c;
+      --p4: #fbbf24;
+
+      --ok: #34d399;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+
+      --display: "Syne", sans-serif;
+      --mono: "JetBrains Mono", monospace;
     }
-  }
 
-  /* scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
-</style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: radial-gradient(circle at 20% -10%, rgba(34, 211, 238, 0.1), transparent 30%),
+                  radial-gradient(circle at 80% 0%, rgba(167, 139, 250, 0.08), transparent 35%),
+                  var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+      background-size: 36px 36px;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 880px;
+      margin: 0 auto;
+      padding: 0 16px 92px;
+    }
+
+    .hero {
+      padding: 34px 0 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      background: rgba(34, 211, 238, 0.08);
+      padding: 7px;
+      box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+    }
+
+    .hero-tag {
+      font-size: 11px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .hero-tag b { color: var(--p1); }
+
+    h1 {
+      font-family: var(--display);
+      font-size: clamp(28px, 6.2vw, 46px);
+      text-align: center;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    h1 .grad {
+      background: linear-gradient(95deg, var(--p1), var(--p4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .progress-card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(14,17,23,0.9), rgba(19,25,39,0.7));
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .progress-row .pct {
+      color: var(--p4);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .progress-track {
+      height: 8px;
+      border-radius: 99px;
+      background: var(--faint);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--p1), var(--p4));
+      transition: width 0.35s ease;
+    }
+
+    .progress-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .adhd-toggle-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .adhd-toggle {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .adhd-toggle.on {
+      color: var(--warn);
+      border-color: rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .adhd-banner {
+      margin-top: 14px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.12);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: center;
+      cursor: pointer;
+      display: none;
+    }
+
+    .adhd-banner.show { display: block; }
+
+    .adhd-banner p { font-size: 13px; color: var(--warn); font-weight: 600; }
+    .adhd-banner span { font-size: 10px; color: rgba(245, 158, 11, 0.65); }
+
+    .phase-tabs {
+      margin-top: 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+    }
+
+    .phase-tabs::-webkit-scrollbar { display: none; }
+
+    .tab {
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      padding: 10px 14px;
+      border-radius: 10px 10px 0 0;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .content {
+      padding-top: 18px;
+    }
+
+    .phase-card {
+      border: 1px solid var(--phase-border);
+      background: var(--phase-bg);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .phase-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .phase-title {
+      font-family: var(--display);
+      color: var(--phase-color);
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .phase-period { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    .phase-target-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    .phase-target-value {
+      color: var(--phase-color);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: right;
+      margin-top: 2px;
+    }
+
+    .phase-goal {
+      margin-top: 12px;
+      border: 1px solid rgba(255,255,255,0.11);
+      background: rgba(8, 12, 18, 0.45);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+    }
+
+    .section-label {
+      font-family: var(--display);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(220, 230, 240, 0.38);
+      margin: 14px 0 10px;
+    }
+
+    .skill-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .skill-card.open {
+      border-color: var(--phase-border-strong);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .skill-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .skill-check {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--phase-color);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .skill-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .skill-main-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .skill-name {
+      font-family: var(--display);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .skill-name.done {
+      text-decoration: line-through;
+      color: rgba(220, 230, 240, 0.5);
+    }
+
+    .pill {
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid transparent;
+    }
+
+    .dots {
+      display: flex;
+      gap: 3px;
+      margin-top: 4px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+    }
+
+    .dot.on { background: var(--warn); }
+
+    .skill-time {
+      margin-left: 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .caret {
+      color: rgba(255,255,255,0.35);
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .skill-body {
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 12px;
+      display: none;
+    }
+
+    .skill-card.open .skill-body { display: block; }
+
+    .mini-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(220,230,240,0.45);
+      margin-bottom: 4px;
+    }
+
+    .copy {
+      font-size: 13px;
+      color: rgba(220,230,240,0.8);
+      line-height: 1.58;
+      margin-bottom: 10px;
+    }
+
+    .tip-box {
+      border: 1px solid rgba(245,158,11,0.25);
+      background: rgba(245,158,11,0.09);
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .goal-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .topics {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .topic {
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      color: rgba(220,230,240,0.72);
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 11px;
+    }
+
+    .resource-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .resource {
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.015);
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .resource.best {
+      border-color: var(--phase-border-strong);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .resource-link {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .resource-link:hover { text-decoration: underline; }
+
+    .resource-type {
+      font-size: 10px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-weight: 700;
+      border: 1px solid;
+    }
+
+    .milestone-wrap {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .milestone {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+    }
+
+    .milestone:last-child { border-bottom: none; }
+
+    .m-check {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.28);
+      margin-top: 1px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .milestone.done {
+      background: var(--phase-dim);
+    }
+
+    .milestone.done .m-check {
+      border-color: var(--phase-color);
+      background: var(--phase-color);
+      color: #09101c;
+    }
+
+    .milestone-text {
+      font-size: 13px;
+      color: rgba(220,230,240,0.85);
+      line-height: 1.45;
+    }
+
+    .milestone.done .milestone-text {
+      text-decoration: line-through;
+      color: rgba(220,230,240,0.46);
+    }
+
+    .checklist-wrap {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.02);
+      margin-bottom: 14px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .check-item:last-child { border-bottom: none; }
+
+    .check-item:hover { background: rgba(255,255,255,0.03); }
+
+    .check-item.done { background: var(--phase-dim); }
+
+    .check-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      border: 2px solid rgba(255,255,255,0.3);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 800;
+      margin-top: 1px;
+    }
+
+    .check-item.done .check-box {
+      border-color: var(--phase-color);
+      background: var(--phase-color);
+      color: #09101c;
+    }
+
+    .check-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .check-title {
+      font-size: 13px;
+      color: rgba(220,230,240,0.9);
+      line-height: 1.45;
+    }
+
+    .check-sub {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 2px;
+    }
+
+    .check-item.done .check-title {
+      text-decoration: line-through;
+      color: rgba(220,230,240,0.5);
+    }
+
+    .extra-box {
+      margin-top: 16px;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .extra-box ol {
+      margin-top: 6px;
+      padding-left: 18px;
+      display: grid;
+      gap: 5px;
+    }
+
+    .extra-box li,
+    .extra-box p {
+      color: rgba(220,230,240,0.8);
+      font-size: 13px;
+      line-height: 1.52;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 4;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      padding: 10px 10px 14px;
+      backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      background: rgba(7, 9, 13, 0.86);
+    }
+
+    .bottom-btn {
+      width: min(120px, 24vw);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 8px 4px;
+      line-height: 1.25;
+    }
+
+    @media (max-width: 620px) {
+      .hero { padding-top: 24px; }
+      .phase-title { font-size: 20px; }
+      .phase-target-label,
+      .phase-target-value { text-align: left; }
+      .bottom-btn { font-size: 9px; }
+    }
+  </style>
 </head>
 <body>
-
-<div class="confetti-wrap" id="confetti"></div>
-
-<div class="container">
-
-  <header>
-    <p class="header-tag">// <span>johnchrisley.dev</span> · AI Engineering Roadmap</p>
-    <h1>The Road to<br><em>$1 Million USD</em></h1>
-    <p class="header-sub">Check off each milestone. Every box is a step closer. 🎯</p>
-  </header>
-
-  <div class="overall-progress">
-    <div class="overall-left">
-      <p class="overall-label">// Total Progress</p>
-      <div class="overall-bar-wrap">
-        <div class="overall-bar-fill" id="overallBar"></div>
+  <div class="shell">
+    <header class="hero">
+      <div class="hero-top">
+        <img class="logo" src="img/jc-logo.svg" alt="JC logo">
+        <p class="hero-tag">// <b>johnchrisley.dev</b> · mmsu bscompeng</p>
       </div>
-    </div>
-    <div class="overall-right">
-      <div class="overall-pct" id="overallPct">0%</div>
-      <div class="overall-fraction" id="overallFrac">0 / 0 done</div>
-    </div>
+      <h1>AI Engineering <span class="grad">Roadmap</span></h1>
+      <p class="hero-sub">Your complete reference to $1M+ USD · 2025 → 2037</p>
+
+      <div class="progress-card">
+        <div class="progress-row">
+          <span>overall progress</span>
+          <span class="pct" id="overallPct">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="overallBar"></div></div>
+        <p class="progress-meta" id="overallMeta">0 of 0 items completed</p>
+      </div>
+
+      <div class="adhd-toggle-wrap">
+        <button class="adhd-toggle" id="adhdToggle">⚡ ADHD Mode OFF</button>
+      </div>
+      <div class="adhd-banner" id="adhdBanner">
+        <p id="adhdTip"></p>
+        <span>tap for next tip</span>
+      </div>
+
+      <div class="phase-tabs" id="phaseTabs"></div>
+    </header>
+
+    <main class="content" id="content"></main>
   </div>
 
-  <!-- PHASE 1 -->
-  <div class="phase p1" id="phase-1">
-    <div class="phase-header" onclick="togglePhase('phase-1')">
-      <div class="phase-dot"></div>
-      <div class="phase-header-text">
-        <div class="phase-num">Phase 01</div>
-        <div class="phase-title">Foundation</div>
-        <div class="phase-timeline">Now → 2027 · Python · Git · DSA · Linux · Fullstack</div>
-      </div>
-      <div class="phase-toggle">▾</div>
-    </div>
-    <div class="phase-progress-row">
-      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-1"></div></div>
-      <div class="phase-bar-text p1" id="frac-1">0/12</div>
-    </div>
-    <div class="phase-complete" id="done-1">🎉 Phase 1 Complete — Foundation locked in!</div>
-    <div class="tasks-wrap">
-      <div class="tasks" id="tasks-1">
-        <div class="task" onclick="toggle(this)" data-id="1-1">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Learn Python basics</span>
-            <span class="task-sub">Syntax, data types, control flow, functions, OOP</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-2">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Build 5 Python projects</span>
-            <span class="task-sub">At least 2 must be real tools you actually use</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-3">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Master Git & GitHub</span>
-            <span class="task-sub">Commits, branches, pull requests, merge conflicts</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-4">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Build a GitHub streak habit</span>
-            <span class="task-sub">Push code consistently — visible activity graph</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-5">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Learn DSA fundamentals</span>
-            <span class="task-sub">Arrays, linked lists, stacks, queues, hashmaps, trees</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-6">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Solve 50 LeetCode problems</span>
-            <span class="task-sub">Easy + Medium — consistent practice beats grinding</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-7">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Learn Linux command line</span>
-            <span class="task-sub">Navigation, file ops, permissions, bash scripting basics</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-8">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Learn HTML / CSS / JS properly</span>
-            <span class="task-sub">DOM, events, async/await, fetch API</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-9">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Build a fullstack web app</span>
-            <span class="task-sub">Frontend + backend + database, deployed live</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-10">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Ship POS System v1</span>
-            <span class="task-sub">Family grocery store live on it and actually using it</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-11">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Portfolio live at johnchrisley.dev</span>
-            <span class="task-sub">Projects, skills, contact — looks legit to recruiters</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="1-12">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Graduate from MMSU 🎓</span>
-            <span class="task-sub">BS Computer Engineering — the foundation is done</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <nav class="bottom-nav" id="bottomNav"></nav>
 
-  <!-- PHASE 2 -->
-  <div class="phase p2" id="phase-2">
-    <div class="phase-header" onclick="togglePhase('phase-2')">
-      <div class="phase-dot"></div>
-      <div class="phase-header-text">
-        <div class="phase-num">Phase 02</div>
-        <div class="phase-title">AI Engineering Entry</div>
-        <div class="phase-timeline">2027 → 2029 · LLM APIs · RAG · Docker · AWS · Upwork</div>
-      </div>
-      <div class="phase-toggle">▾</div>
-    </div>
-    <div class="phase-progress-row">
-      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-2"></div></div>
-      <div class="phase-bar-text p2" id="frac-2">0/9</div>
-    </div>
-    <div class="phase-complete" id="done-2">🚀 Phase 2 Complete — You're an AI engineer now!</div>
-    <div class="tasks-wrap">
-      <div class="tasks" id="tasks-2">
-        <div class="task" onclick="toggle(this)" data-id="2-1">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Learn LLM APIs (OpenAI + Anthropic)</span>
-            <span class="task-sub">Prompting, function calling, streaming, system prompts</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-2">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Build a RAG application</span>
-            <span class="task-sub">Vector DB + embeddings + retrieval pipeline — deployed</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-3">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Learn Docker</span>
-            <span class="task-sub">Containerize your apps, docker-compose, deployment basics</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-4">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Earn AWS Cloud Practitioner cert ☁️</span>
-            <span class="task-sub">First AWS cert — opens doors to cloud roles</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-5">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Get first Upwork client</span>
-            <span class="task-sub">Land a real paid AI/dev project — any amount counts</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-6">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Reach ₱50,000/month freelancing</span>
-            <span class="task-sub">Consistent income stream outside your job</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-7">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Launch POS SaaS (multi-tenant)</span>
-            <span class="task-sub">₱500-1500/month per store — at least 5 paying customers</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-8">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Open IBKR account + start investing</span>
-            <span class="task-sub">30%+ of every paycheck: VOO, QQQ, VXUS core allocation</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="2-9">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Land first AI engineering job 💼</span>
-            <span class="task-sub">Full-time or contract — remote preferred</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PHASE 3 -->
-  <div class="phase p3" id="phase-3">
-    <div class="phase-header" onclick="togglePhase('phase-3')">
-      <div class="phase-dot"></div>
-      <div class="phase-header-text">
-        <div class="phase-num">Phase 03</div>
-        <div class="phase-title">Scale Up</div>
-        <div class="phase-timeline">2029 → 2032 · MLOps · AWS SAA · SaaS · Agency</div>
-      </div>
-      <div class="phase-toggle">▾</div>
-    </div>
-    <div class="phase-progress-row">
-      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-3"></div></div>
-      <div class="phase-bar-text p3" id="frac-3">0/7</div>
-    </div>
-    <div class="phase-complete" id="done-3">🔥 Phase 3 Complete — You're scaling hard!</div>
-    <div class="tasks-wrap">
-      <div class="tasks" id="tasks-3">
-        <div class="task" onclick="toggle(this)" data-id="3-1">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Earn AWS Solutions Architect Associate</span>
-            <span class="task-sub">Major credibility boost + higher rates</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="3-2">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Learn MLOps fundamentals</span>
-            <span class="task-sub">Model deployment, monitoring, CI/CD for ML pipelines</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="3-3">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Scale POS SaaS to 50+ customers</span>
-            <span class="task-sub">Add AI features: inventory prediction, sales insights</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="3-4">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Build an agency model</span>
-            <span class="task-sub">Hire 2-3 devs, systemize delivery, take higher-value work</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="3-5">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Reach $5,000/month total income</span>
-            <span class="task-sub">Job + freelancing + SaaS MRR combined</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="3-6">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">IBKR portfolio hits $50,000</span>
-            <span class="task-sub">Consistent 30%+ paycheck investing, compounding in action</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="3-7">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Net worth crosses $100,000 USD 💯</span>
-            <span class="task-sub">First major milestone — prove the system works</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PHASE 4 -->
-  <div class="phase p4" id="phase-4">
-    <div class="phase-header" onclick="togglePhase('phase-4')">
-      <div class="phase-dot"></div>
-      <div class="phase-header-text">
-        <div class="phase-num">Phase 04</div>
-        <div class="phase-title">$1M Endgame</div>
-        <div class="phase-timeline">2032 → 2037 · SaaS Exit · Investments · Net Worth</div>
-      </div>
-      <div class="phase-toggle">▾</div>
-    </div>
-    <div class="phase-progress-row">
-      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-4"></div></div>
-      <div class="phase-bar-text p4" id="frac-4">0/5</div>
-    </div>
-    <div class="phase-complete" id="done-4">👑 DONE. You made it. $1M+ net worth. MILLIONAIRE.</div>
-    <div class="tasks-wrap">
-      <div class="tasks" id="tasks-4">
-        <div class="task" onclick="toggle(this)" data-id="4-1">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">POS SaaS hits $10,000 MRR</span>
-            <span class="task-sub">100+ stores paying monthly — product-market fit confirmed</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="4-2">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Investment portfolio hits $500,000</span>
-            <span class="task-sub">VOO + QQQ + diversified allocation compounding hard</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="4-3">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Net worth crosses $500,000</span>
-            <span class="task-sub">Halfway there. Don't stop now.</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="4-4">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Execute SaaS acquisition or scale</span>
-            <span class="task-sub">Either sell for 3-5x ARR or double down and grow</span>
-          </div>
-        </div>
-        <div class="task" onclick="toggle(this)" data-id="4-5">
-          <div class="cb"></div>
-          <div class="task-text">
-            <span class="task-label">Net worth crosses $1,000,000 USD 🎯</span>
-            <span class="task-sub">Dollar multimillionaire. The goal from day one.</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <div class="footer-left">
-      Built by <span>Jc</span> · <span>johnchrisley.dev</span>
-    </div>
-    <button class="reset-btn" onclick="resetAll()">reset progress</button>
-  </footer>
-
-</div>
-
-<script>
-  const STORAGE_KEY = 'jc_roadmap_v1';
-
-  const PHASE_COUNTS = { 1: 12, 2: 9, 3: 7, 4: 5 };
-
-  function loadState() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
-    catch { return {}; }
-  }
-
-  function saveState(state) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-
-  function toggle(el) {
-    const state = loadState();
-    const id = el.dataset.id;
-    const wasDone = el.classList.contains('done');
-
-    if (!wasDone) {
-      el.classList.add('done', 'just-checked');
-      state[id] = true;
-      setTimeout(() => el.classList.remove('just-checked'), 400);
-      spawnMini(el);
-    } else {
-      el.classList.remove('done');
-      delete state[id];
-    }
-
-    saveState(state);
-    updateAll(state);
-  }
-
-  function updateAll(state) {
-    let totalDone = 0;
-    let totalAll = 0;
-
-    [1, 2, 3, 4].forEach(p => {
-      const count = PHASE_COUNTS[p];
-      let done = 0;
-      for (let i = 1; i <= count; i++) {
-        if (state[`${p}-${i}`]) done++;
+  <script>
+    const PHASES = [
+      {
+        id: 1,
+        label: "Phase 1",
+        title: "Build the Weapon",
+        period: "Now → Graduation (2027)",
+        color: "#22d3ee",
+        bg: "rgba(34,211,238,0.1)",
+        border: "rgba(34,211,238,0.3)",
+        goal: "Become dangerous in the market",
+        wealthTarget: "₱0 extra — invest in yourself",
+        emoji: "⚔️",
+        milestones: [
+          "Apply for GitHub Student Pack",
+          "Set up LinkedIn seriously (500+ connections goal)",
+          "Complete 3 portfolio projects with READMEs",
+          "Land OJT at a software/AI company",
+          "Python: build something real with it",
+          "Deploy at least 1 project publicly"
+        ],
+        checklist: [
+          { title: "Learn Python basics", sub: "Syntax, data types, control flow, functions, OOP" },
+          { title: "Build 5 Python projects", sub: "At least 2 should be tools you use in real life" },
+          { title: "Master Git and GitHub", sub: "Commits, branches, pull requests, merge conflicts" },
+          { title: "Build a GitHub streak habit", sub: "Push consistently and keep visible activity" },
+          { title: "Learn DSA fundamentals", sub: "Arrays, linked lists, stacks, queues, hashmaps, trees" },
+          { title: "Solve 50 LeetCode problems", sub: "Easy and Medium; consistency over grinding" },
+          { title: "Learn Linux command line", sub: "Navigation, file ops, permissions, bash basics" },
+          { title: "Learn HTML/CSS/JS properly", sub: "DOM, events, async/await, fetch API" },
+          { title: "Build a fullstack web app", sub: "Frontend + backend + database, deployed live" },
+          { title: "Ship POS System v1", sub: "Live in your family store and used daily" },
+          { title: "Portfolio live at johnchrisley.dev", sub: "Projects, skills, and contact ready for recruiters" },
+          { title: "Graduate from MMSU", sub: "BS Computer Engineering foundation completed" }
+        ],
+        skills: [
+          {
+            id: "python",
+            name: "Python",
+            tag: "CRITICAL",
+            tagColor: "#ef4444",
+            why: "The language of AI/ML and your fastest path to shipping useful tools.",
+            adhdTip: "Skip passive tutorials and automate one real life task first.",
+            timeEst: "3-4 months to proficiency",
+            difficulty: 2,
+            weeklyGoal: "1 small working script per week",
+            topics: ["Data types, loops, functions", "OOP in Python", "NumPy + Pandas basics", "FastAPI", "Async/await"],
+            resources: [
+              { name: "CS50P (Harvard)", url: "https://cs50.harvard.edu/python", type: "Free Course", best: true },
+              { name: "Automate the Boring Stuff", url: "https://automatetheboringstuff.com", type: "Free Book" },
+              { name: "Exercism Python Track", url: "https://exercism.org/tracks/python", type: "Free Practice" }
+            ]
+          },
+          {
+            id: "git",
+            name: "Git & GitHub",
+            tag: "CRITICAL",
+            tagColor: "#ef4444",
+            why: "Your GitHub is your real resume and proof of consistency.",
+            adhdTip: "Commit every day, even tiny wins. Streaks create momentum.",
+            timeEst: "1-2 weeks",
+            difficulty: 1,
+            weeklyGoal: "Push at least 1 commit every 2 days",
+            topics: ["init/add/commit/push", "Branching", "Pull requests", "GitHub Actions basics"],
+            resources: [
+              { name: "GitHub Student Pack", url: "https://education.github.com/pack", type: "Free Tools", best: true },
+              { name: "Oh My Git!", url: "https://ohmygit.org", type: "Free Game" },
+              { name: "Learn Git Branching", url: "https://learngitbranching.js.org", type: "Free Interactive" }
+            ]
+          },
+          {
+            id: "dsa",
+            name: "Data Structures & Algorithms",
+            tag: "IMPORTANT",
+            tagColor: "#f59e0b",
+            why: "Interview performance and problem-solving speed still matter for AI roles.",
+            adhdTip: "Use 25-minute sprints. If stuck, learn the pattern and move on.",
+            timeEst: "Ongoing - 2-3 problems/week",
+            difficulty: 3,
+            weeklyGoal: "2-3 LeetCode Easy problems/week",
+            topics: ["Arrays/strings/hashmaps", "Linked lists/stacks/queues", "Binary search", "Recursion", "Big O"],
+            resources: [
+              { name: "Neetcode Roadmap", url: "https://neetcode.io/roadmap", type: "Free Roadmap", best: true },
+              { name: "LeetCode", url: "https://leetcode.com", type: "Free Practice" }
+            ]
+          },
+          {
+            id: "linux",
+            name: "Linux & Terminal",
+            tag: "IMPORTANT",
+            tagColor: "#f59e0b",
+            why: "Deployment and cloud operations are terminal-first.",
+            adhdTip: "Use Linux daily through WSL2. Habit beats theory.",
+            timeEst: "2-3 weeks basics",
+            difficulty: 2,
+            weeklyGoal: "Do 5 Bandit levels/week",
+            topics: ["File navigation", "Permissions", "Processes", "SSH", "Shell scripts"],
+            resources: [
+              { name: "OverTheWire Bandit", url: "https://overthewire.org/wargames/bandit", type: "Free Game", best: true },
+              { name: "Linux Journey", url: "https://linuxjourney.com", type: "Free Course" }
+            ]
+          },
+          {
+            id: "web",
+            name: "Fullstack Web (React + FastAPI)",
+            tag: "IMPORTANT",
+            tagColor: "#f59e0b",
+            why: "AI products need strong UX and backend APIs in production.",
+            adhdTip: "Clone and modify real projects instead of starting from zero.",
+            timeEst: "3-5 months",
+            difficulty: 3,
+            weeklyGoal: "One small feature added to POS/week",
+            topics: ["React hooks/state", "REST API design", "FastAPI endpoints", "PostgreSQL", "JWT auth"],
+            resources: [
+              { name: "The Odin Project", url: "https://theodinproject.com", type: "Free Course", best: true },
+              { name: "FastAPI Docs", url: "https://fastapi.tiangolo.com", type: "Free Docs" },
+              { name: "Scrimba React", url: "https://scrimba.com/learn/learnreact", type: "Free Course" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 2,
+        label: "Phase 2",
+        title: "Launch & Stack",
+        period: "2027-2029 (Years 1-2 Post-Grad)",
+        color: "#a78bfa",
+        bg: "rgba(167,139,250,0.1)",
+        border: "rgba(167,139,250,0.3)",
+        goal: "Income stacking + first product revenue",
+        wealthTarget: "$30,000-50,000 USD net worth",
+        emoji: "🚀",
+        milestones: [
+          "Land a dollar-denominated remote job",
+          "Open IBKR account, buy first VOO shares",
+          "Create Upwork profile, land first client",
+          "POS system has 10 paying customers",
+          "Invest 30%+ of every paycheck",
+          "AWS Cloud Practitioner exam booked"
+        ],
+        checklist: [
+          { title: "Learn LLM APIs (OpenAI and Anthropic)", sub: "Prompting, function calling, streaming, system prompts" },
+          { title: "Build a RAG application", sub: "Vector DB + embeddings + retrieval pipeline deployed" },
+          { title: "Learn Docker", sub: "Containerize apps, compose, deployment basics" },
+          { title: "Earn AWS Cloud Practitioner cert", sub: "Your first recognized cloud credential" },
+          { title: "Get first Upwork client", sub: "Any paid AI/dev project to validate demand" },
+          { title: "Reach PHP 50,000/month freelancing", sub: "Build a stable income stream outside your job" },
+          { title: "Launch POS SaaS (multi-tenant)", sub: "Target 5 paying customers to prove model" },
+          { title: "Open IBKR and start investing", sub: "Allocate 30%+ consistently" },
+          { title: "Land first AI engineering job", sub: "Full-time or contract, remote preferred" }
+        ],
+        skills: [
+          {
+            id: "llm",
+            name: "LLM APIs & Prompt Engineering",
+            tag: "CRITICAL",
+            tagColor: "#ef4444",
+            why: "Core practical AI engineering skill for building intelligent products.",
+            adhdTip: "Make one API call today and print the response.",
+            timeEst: "2-4 weeks",
+            difficulty: 2,
+            weeklyGoal: "Build 1 Claude-powered script/week",
+            topics: ["Auth/API calls", "System prompts", "Parameters", "JSON output", "Rate limit handling"],
+            resources: [
+              { name: "Anthropic Docs", url: "https://docs.anthropic.com", type: "Free Docs", best: true },
+              { name: "OpenAI Cookbook", url: "https://cookbook.openai.com", type: "Free Examples" }
+            ]
+          },
+          {
+            id: "rag",
+            name: "RAG (Retrieval-Augmented Generation)",
+            tag: "CRITICAL",
+            tagColor: "#ef4444",
+            why: "Most in-demand path for building AI products on private data.",
+            adhdTip: "Start with a chatbot on your own thesis or notes.",
+            timeEst: "3-6 weeks",
+            difficulty: 3,
+            weeklyGoal: "1 RAG component/week",
+            topics: ["Embeddings", "Vector DB", "Chunking", "LangChain/LlamaIndex", "Retrieval pipeline"],
+            resources: [
+              { name: "LangChain RAG Course", url: "https://learn.deeplearning.ai/langchain-chat-with-your-data", type: "Free Course", best: true },
+              { name: "LlamaIndex Docs", url: "https://docs.llamaindex.ai", type: "Free Docs" }
+            ]
+          },
+          {
+            id: "ollama",
+            name: "Local AI (Ollama)",
+            tag: "USEFUL",
+            tagColor: "#34d399",
+            why: "Build without API cost by running local models.",
+            adhdTip: "Install and ask one question immediately for quick feedback.",
+            timeEst: "1 week setup",
+            difficulty: 1,
+            weeklyGoal: "Use as daily coding assistant",
+            topics: ["Install", "Run models", "Local API", "Open WebUI", "Model selection"],
+            resources: [
+              { name: "Ollama", url: "https://ollama.ai", type: "Free Tool", best: true },
+              { name: "Open WebUI", url: "https://github.com/open-webui/open-webui", type: "Free Tool" }
+            ]
+          },
+          {
+            id: "docker",
+            name: "Docker & Containers",
+            tag: "CRITICAL",
+            tagColor: "#ef4444",
+            why: "Production deployments expect containerized services.",
+            adhdTip: "Containerize a project you already built first.",
+            timeEst: "2-3 weeks",
+            difficulty: 2,
+            weeklyGoal: "One project dockerized/week",
+            topics: ["Dockerfile", "Images/containers", "Compose", "Volumes/network", "Docker Hub"],
+            resources: [
+              { name: "Docker Getting Started", url: "https://docs.docker.com/get-started", type: "Free Docs", best: true },
+              { name: "Play with Docker", url: "https://labs.play-with-docker.com", type: "Free Sandbox" }
+            ]
+          },
+          {
+            id: "aws-ccp",
+            name: "AWS Cloud Practitioner",
+            tag: "CERTIFICATION",
+            tagColor: "#a78bfa",
+            why: "A recognized cloud credential for early-career momentum.",
+            adhdTip: "Use 20-minute Pomodoros and daily practice questions.",
+            timeEst: "4-6 weeks",
+            difficulty: 2,
+            weeklyGoal: "50 practice questions/week",
+            topics: ["Pricing", "Core AWS services", "IAM", "Networking basics", "Service maps"],
+            resources: [
+              { name: "ExamPro Course", url: "https://freecodecamp.org/news/aws-certified-cloud-practitioner-certification-study-course-pass-the-exam", type: "Free Course", best: true },
+              { name: "AWS Free Tier", url: "https://aws.amazon.com/free", type: "Free Practice" }
+            ]
+          },
+          {
+            id: "upwork",
+            name: "Freelancing (Upwork)",
+            tag: "INCOME",
+            tagColor: "#34d399",
+            why: "Fastest practical way to stack dollar-denominated side income.",
+            adhdTip: "Treat proposals as reps. Volume first, optimize after wins.",
+            timeEst: "Ongoing",
+            difficulty: 3,
+            weeklyGoal: "5 proposals/day in month 1",
+            topics: ["Profile optimization", "Proposal writing", "Pricing", "AI niche positioning", "Client comms"],
+            resources: [
+              { name: "Upwork", url: "https://upwork.com", type: "Platform", best: true },
+              { name: "Alex Fasulo YouTube", url: "https://youtube.com/@AlexFasulo", type: "Free YouTube" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 3,
+        label: "Phase 3",
+        title: "Scale the Engine",
+        period: "2029-2032 (Years 3-5)",
+        color: "#fb923c",
+        bg: "rgba(251,146,60,0.1)",
+        border: "rgba(251,146,60,0.3)",
+        goal: "Multiple income streams, SaaS hitting 100-500 customers",
+        wealthTarget: "$150,000-400,000 USD net worth",
+        emoji: "📈",
+        milestones: [
+          "Promoted to Senior/Lead AI Engineer",
+          "Freelancing to agency (hire 1-2 juniors)",
+          "POS SaaS: 100+ paying customers",
+          "AWS Solutions Architect Associate certified",
+          "Investing $2,000-3,000/month consistently",
+          "Expand SaaS to Southeast Asian market"
+        ],
+        checklist: [
+          { title: "Earn AWS Solutions Architect Associate", sub: "Major credibility boost and higher rates" },
+          { title: "Learn MLOps fundamentals", sub: "Model deployment, monitoring, CI/CD for ML" },
+          { title: "Scale POS SaaS to 50+ customers", sub: "Add AI features and improve retention" },
+          { title: "Build an agency model", sub: "Hire 2-3 devs and systemize delivery" },
+          { title: "Reach $5,000/month total income", sub: "Job + freelancing + SaaS combined" },
+          { title: "IBKR portfolio hits $50,000", sub: "Consistency and compounding in action" },
+          { title: "Net worth crosses $100,000 USD", sub: "First major proof that the system works" }
+        ],
+        skills: [
+          {
+            id: "mlops",
+            name: "MLOps & Model Deployment",
+            tag: "CRITICAL",
+            tagColor: "#ef4444",
+            why: "Deployment, observability, and iteration matter more than model demos.",
+            adhdTip: "Deploy one real app and maintain it for real users.",
+            timeEst: "2-3 months",
+            difficulty: 4,
+            weeklyGoal: "One deployment or monitoring upgrade/week",
+            topics: ["Serving with FastAPI + Docker", "CI/CD", "Monitoring", "A/B tests", "Cost optimization"],
+            resources: [
+              { name: "Full Stack Deep Learning", url: "https://fullstackdeeplearning.com", type: "Free Course", best: true },
+              { name: "Made With ML", url: "https://madewithml.com", type: "Free Course" }
+            ]
+          },
+          {
+            id: "aws-saa",
+            name: "AWS Solutions Architect Associate",
+            tag: "CERTIFICATION",
+            tagColor: "#a78bfa",
+            why: "High-signal credential for salary and role upgrades.",
+            adhdTip: "Use scenario-based visual study to stay engaged.",
+            timeEst: "2-3 months",
+            difficulty: 4,
+            weeklyGoal: "1 module + 30 questions/week",
+            topics: ["VPC deep dive", "Compute/storage", "Serverless", "Containers", "Security"],
+            resources: [
+              { name: "Cantrill SAA", url: "https://cantrill.io", type: "Paid (Best value)", best: true },
+              { name: "AWS Architecture Center", url: "https://aws.amazon.com/architecture", type: "Free Reference" }
+            ]
+          },
+          {
+            id: "saas",
+            name: "SaaS Product Building",
+            tag: "WEALTH ENGINE",
+            tagColor: "#f59e0b",
+            why: "Recurring product revenue is the long-term wealth multiplier.",
+            adhdTip: "Ship ugly MVPs fast and listen to paying users.",
+            timeEst: "6-12 months to first 50 customers",
+            difficulty: 5,
+            weeklyGoal: "1 user interview or 1 feature shipped/week",
+            topics: ["Multi-tenancy", "Billing", "Onboarding", "Churn", "Product-led growth"],
+            resources: [
+              { name: "Indie Hackers", url: "https://indiehackers.com", type: "Free Community", best: true },
+              { name: "MicroConf", url: "https://youtube.com/@MicroConf", type: "Free YouTube" }
+            ]
+          },
+          {
+            id: "agency",
+            name: "Freelance to Agency Transition",
+            tag: "INCOME",
+            tagColor: "#34d399",
+            why: "Agencies let you scale output beyond solo freelancer limits.",
+            adhdTip: "Start with one part-time project hire before full team growth.",
+            timeEst: "6-12 months",
+            difficulty: 4,
+            weeklyGoal: "Document one process/week",
+            topics: ["Productized services", "Hiring", "Contracts", "Pricing", "Delivery systems"],
+            resources: [
+              { name: "Jonathan Stark Pricing", url: "https://jonathanstark.com", type: "Free Content", best: true },
+              { name: "OnlineJobs.ph", url: "https://onlinejobs.ph", type: "Platform" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 4,
+        label: "Phase 4",
+        title: "The Wealth Inflection",
+        period: "2032-2037 (Years 6-10)",
+        color: "#fbbf24",
+        bg: "rgba(251,191,36,0.1)",
+        border: "rgba(251,191,36,0.3)",
+        goal: "Cross $1M USD. Exit or scale the SaaS.",
+        wealthTarget: "$800,000-$2,000,000+ USD",
+        emoji: "💎",
+        milestones: [
+          "Net worth crosses $500K USD",
+          "SaaS doing $10K+/month ARR",
+          "Consider selling SaaS on Acquire.com",
+          "Investment portfolio hits $250K+ USD",
+          "Cross $1,000,000 USD net worth",
+          "Build next product with exit capital (optional)"
+        ],
+        checklist: [
+          { title: "POS SaaS hits $10,000 MRR", sub: "100+ paying stores and repeatable growth" },
+          { title: "Investment portfolio hits $500,000", sub: "Compounding with disciplined strategy" },
+          { title: "Net worth crosses $500,000", sub: "Halfway mark to seven figures" },
+          { title: "Execute SaaS acquisition or scale", sub: "Sell for multiple or keep compounding" },
+          { title: "Net worth crosses $1,000,000 USD", sub: "Primary roadmap target reached" }
+        ],
+        skills: [
+          {
+            id: "exit",
+            name: "SaaS Exit Strategy",
+            tag: "WEALTH",
+            tagColor: "#f59e0b",
+            why: "Strong ARR with clean operations drives higher acquisition multiples.",
+            adhdTip: "Build for buyer-ready operations from day one.",
+            timeEst: "Ongoing preparation",
+            difficulty: 4,
+            weeklyGoal: "Review MRR dashboard every Monday",
+            topics: ["Valuation", "Financials", "Due diligence", "Buyer process", "Negotiation"],
+            resources: [
+              { name: "Acquire.com", url: "https://acquire.com", type: "Platform", best: true },
+              { name: "Acquire Blog", url: "https://acquire.com/blog", type: "Free Content" }
+            ]
+          },
+          {
+            id: "investing-adv",
+            name: "Advanced Investing",
+            tag: "WEALTH",
+            tagColor: "#f59e0b",
+            why: "Capital preservation and compounding become strategic at this stage.",
+            adhdTip: "Automate buys and reduce decision fatigue.",
+            timeEst: "Ongoing",
+            difficulty: 3,
+            weeklyGoal: "Review quarterly, not weekly",
+            topics: ["Tax-aware strategy", "Dividends", "REITs", "Rebalancing", "Withdrawal planning"],
+            resources: [
+              { name: "Bogleheads", url: "https://bogleheads.org", type: "Free Community", best: true },
+              { name: "Simple Path to Wealth", url: "https://jlcollinsnh.com/stock-series", type: "Free Book" }
+            ]
+          },
+          {
+            id: "leadership",
+            name: "Engineering Leadership",
+            tag: "CAREER",
+            tagColor: "#a78bfa",
+            why: "Leadership and strategic execution multiply impact and compensation.",
+            adhdTip: "Write publicly about real engineering lessons weekly.",
+            timeEst: "Ongoing",
+            difficulty: 4,
+            weeklyGoal: "1 LinkedIn learning post/week",
+            topics: ["Architecture direction", "Mentoring", "Cross-functional comms", "System design", "Team metrics"],
+            resources: [
+              { name: "Staff Engineer", url: "https://staffeng.com", type: "Free Content", best: true },
+              { name: "Lenny's Newsletter", url: "https://lennysnewsletter.com", type: "Free Newsletter" }
+            ]
+          }
+        ]
       }
-      totalDone += done;
-      totalAll += count;
+    ];
 
-      const pct = count ? Math.round((done / count) * 100) : 0;
-      document.getElementById(`bar-${p}`).style.width = pct + '%';
-      document.getElementById(`frac-${p}`).textContent = `${done}/${count}`;
+    const ADHD_TIPS = [
+      "One skill at a time. Finish before switching.",
+      "25-min Pomodoro, then mandatory 5-min break.",
+      "Build something real beats finishing a tutorial.",
+      "Body doubling helps. Use Focusmate for accountability.",
+      "Keep your GitHub streak alive, even tiny commits.",
+      "Missing days is normal. Resume fast, no guilt.",
+      "Gamify LeetCode like levels, not tests."
+    ];
 
-      const banner = document.getElementById(`done-${p}`);
-      if (done === count) banner.classList.add('show');
-      else banner.classList.remove('show');
-    });
+    const STORAGE_KEY = "jc_roadmap_theme_v2";
+    const state = {
+      activePhase: 1,
+      checked: {},
+      openSkills: {},
+      adhdMode: false,
+      tipIdx: 0
+    };
 
-    const overallPct = totalAll ? Math.round((totalDone / totalAll) * 100) : 0;
-    document.getElementById('overallBar').style.width = overallPct + '%';
-    document.getElementById('overallPct').textContent = overallPct + '%';
-    document.getElementById('overallFrac').textContent = `${totalDone} / ${totalAll} done`;
+    const typeColor = {
+      "Free Course": "#34d399",
+      "Free Book": "#34d399",
+      "Free Docs": "#34d399",
+      "Free Tool": "#34d399",
+      "Free Practice": "#34d399",
+      "Free Game": "#34d399",
+      "Free Interactive": "#34d399",
+      "Free YouTube": "#34d399",
+      "Free Roadmap": "#34d399",
+      "Free Examples": "#34d399",
+      "Free Content": "#34d399",
+      "Free Sandbox": "#34d399",
+      "Free Community": "#34d399",
+      "Free Newsletter": "#34d399",
+      "Free Reference": "#34d399",
+      "Free Tools": "#34d399",
+      "Platform": "#a78bfa",
+      "Paid (Best value)": "#f59e0b"
+    };
 
-    if (totalDone === totalAll && totalAll > 0) {
-      triggerConfetti();
+    function load() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+        state.checked = raw.checked || {};
+        state.adhdMode = !!raw.adhdMode;
+        state.tipIdx = Number.isInteger(raw.tipIdx) ? raw.tipIdx : 0;
+        state.activePhase = Number.isInteger(raw.activePhase) ? raw.activePhase : 1;
+      } catch (_) {
+        state.checked = {};
+      }
     }
-  }
 
-  function applyState() {
-    const state = loadState();
-    Object.keys(state).forEach(id => {
-      const el = document.querySelector(`[data-id="${id}"]`);
-      if (el) el.classList.add('done');
-    });
-    updateAll(state);
-  }
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        checked: state.checked,
+        adhdMode: state.adhdMode,
+        tipIdx: state.tipIdx,
+        activePhase: state.activePhase
+      }));
+    }
 
-  function togglePhase(id) {
-    document.getElementById(id).classList.toggle('collapsed');
-  }
+    function getPhaseById(id) {
+      return PHASES.find((p) => p.id === id) || PHASES[0];
+    }
 
-  function resetAll() {
-    if (!confirm('Reset all progress? This cannot be undone.')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    document.querySelectorAll('.task').forEach(t => t.classList.remove('done'));
-    updateAll({});
-  }
+    function getTotals() {
+      const totalSkills = PHASES.reduce((n, p) => n + p.skills.length, 0);
+      const totalMilestones = PHASES.reduce((n, p) => n + p.milestones.length, 0);
+      const totalChecklist = PHASES.reduce((n, p) => n + p.checklist.length, 0);
+      const completedCount = Object.values(state.checked).filter(Boolean).length;
+      const all = totalSkills + totalMilestones + totalChecklist;
+      const pct = all ? Math.round((completedCount / all) * 100) : 0;
+      return { totalSkills, totalMilestones, totalChecklist, completedCount, all, pct };
+    }
 
-  // Tiny burst on single check
-  function spawnMini(taskEl) {
-    const rect = taskEl.getBoundingClientRect();
-    const wrap = document.getElementById('confetti');
-    const colors = ['#22d3ee', '#a78bfa', '#fb923c', '#fbbf24', '#34d399'];
-    for (let i = 0; i < 8; i++) {
-      const c = document.createElement('div');
-      c.className = 'confetti-piece';
-      c.style.cssText = `
-        left: ${rect.left + rect.width * 0.5 + (Math.random() - 0.5) * 60}px;
-        top: ${rect.top + rect.height * 0.5}px;
-        background: ${colors[Math.floor(Math.random() * colors.length)]};
-        animation-duration: ${0.6 + Math.random() * 0.6}s;
-        animation-name: fall;
-        transform: rotate(${Math.random() * 360}deg);
-        width: ${4 + Math.random() * 6}px;
-        height: ${4 + Math.random() * 6}px;
+    function keySkill(phaseId, skillId) {
+      return `skill-${phaseId}-${skillId}`;
+    }
+
+    function keyMilestone(phaseId, index) {
+      return `milestone-${phaseId}-${index}`;
+    }
+
+    function keyChecklist(phaseId, index) {
+      return `checklist-${phaseId}-${index}`;
+    }
+
+    function toggleChecked(key) {
+      state.checked[key] = !state.checked[key];
+      save();
+      render();
+    }
+
+    function toggleOpen(skillKey) {
+      state.openSkills[skillKey] = !state.openSkills[skillKey];
+      render();
+    }
+
+    function setActivePhase(id) {
+      state.activePhase = id;
+      save();
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function renderTabs() {
+      const tabs = document.getElementById("phaseTabs");
+      const bottom = document.getElementById("bottomNav");
+      const tabHtml = PHASES.map((p) => {
+        const active = p.id === state.activePhase;
+        const style = active
+          ? `color:${p.color};border-color:${p.border};background:${p.bg};`
+          : "";
+        return `<button class="tab" data-phase="${p.id}" style="${style}">${p.emoji} ${p.label}</button>`;
+      }).join("");
+      tabs.innerHTML = tabHtml;
+
+      const bottomHtml = PHASES.map((p) => {
+        const active = p.id === state.activePhase;
+        const style = active
+          ? `color:${p.color};border-color:${p.border};background:${p.bg};`
+          : "";
+        return `<button class="bottom-btn" data-phase="${p.id}" style="${style}">${p.emoji}<br>${p.label}</button>`;
+      }).join("");
+      bottom.innerHTML = bottomHtml;
+
+      tabs.querySelectorAll("button").forEach((b) => {
+        b.addEventListener("click", () => setActivePhase(Number(b.dataset.phase)));
+      });
+
+      bottom.querySelectorAll("button").forEach((b) => {
+        b.addEventListener("click", () => setActivePhase(Number(b.dataset.phase)));
+      });
+    }
+
+    function difficultyDots(level) {
+      let html = "<div class=\"dots\">";
+      for (let i = 1; i <= 5; i++) {
+        html += `<span class=\"dot ${i <= level ? "on" : ""}\"></span>`;
+      }
+      html += "</div>";
+      return html;
+    }
+
+    function renderResourceType(type) {
+      const color = typeColor[type] || "#a78bfa";
+      return `<span class=\"resource-type\" style=\"color:${color};border-color:${color}66;background:${color}22;\">${type}</span>`;
+    }
+
+    function renderContent() {
+      const phase = getPhaseById(state.activePhase);
+      const c = document.getElementById("content");
+
+      const skillsHtml = phase.skills.map((skill) => {
+        const checked = !!state.checked[keySkill(phase.id, skill.id)];
+        const openKey = `${phase.id}-${skill.id}`;
+        const open = !!state.openSkills[openKey];
+        const resources = skill.resources.map((r) => {
+          return `<div class="resource ${r.best ? "best" : ""}">
+            <div>
+              ${r.best ? `<span style="font-size:10px;color:${phase.color};margin-right:8px;">★ BEST</span>` : ""}
+              <a class="resource-link" href="${r.url}" target="_blank" rel="noopener noreferrer">${r.name} →</a>
+            </div>
+            ${renderResourceType(r.type)}
+          </div>`;
+        }).join("");
+
+        const topics = skill.topics.map((t) => `<span class="topic">${t}</span>`).join("");
+
+        return `<article class="skill-card ${open ? "open" : ""}" style="--phase-border-strong:${phase.border};">
+          <div class="skill-head" data-toggle-skill="${openKey}">
+            <input class="skill-check" type="checkbox" ${checked ? "checked" : ""} data-check="${keySkill(phase.id, skill.id)}">
+            <div class="skill-main">
+              <div class="skill-main-top">
+                <span class="skill-name ${checked ? "done" : ""}">${skill.name}</span>
+                <span class="pill" style="color:${skill.tagColor};border-color:${skill.tagColor}55;background:${skill.tagColor}22;">${skill.tag}</span>
+              </div>
+              ${difficultyDots(skill.difficulty)}
+              <span class="skill-time">${skill.timeEst}</span>
+            </div>
+            <span class="caret">${open ? "▲" : "▼"}</span>
+          </div>
+          <div class="skill-body">
+            <div class="mini-label" style="color:${phase.color};">why this matters</div>
+            <p class="copy">${skill.why}</p>
+
+            <div class="tip-box">
+              <div class="mini-label" style="color:#f59e0b;">adhd tip</div>
+              <p class="copy" style="margin-bottom:0;">${skill.adhdTip}</p>
+            </div>
+
+            <div class="goal-row">
+              <div>🎯</div>
+              <div>
+                <div class="mini-label">weekly goal</div>
+                <p class="copy" style="margin-bottom:0;">${skill.weeklyGoal}</p>
+              </div>
+            </div>
+
+            <div class="mini-label">what to learn</div>
+            <div class="topics">${topics}</div>
+
+            <div class="mini-label">resources</div>
+            <div class="resource-list">${resources}</div>
+          </div>
+        </article>`;
+      }).join("");
+
+      const milestonesHtml = phase.milestones.map((m, i) => {
+        const key = keyMilestone(phase.id, i);
+        const done = !!state.checked[key];
+        return `<div class="milestone ${done ? "done" : ""}" data-check="${key}">
+          <div class="m-check">${done ? "✓" : ""}</div>
+          <p class="milestone-text">${m}</p>
+        </div>`;
+      }).join("");
+
+      const checklistHtml = phase.checklist.map((item, i) => {
+        const key = keyChecklist(phase.id, i);
+        const done = !!state.checked[key];
+        return `<div class="check-item ${done ? "done" : ""}" data-check="${key}">
+          <div class="check-box">${done ? "✓" : ""}</div>
+          <div class="check-content">
+            <p class="check-title">${item.title}</p>
+            <p class="check-sub">${item.sub}</p>
+          </div>
+        </div>`;
+      }).join("");
+
+      const firstActions = phase.id === 1 ? `
+        <section class="extra-box" style="border-color:rgba(34,211,238,0.4);background:rgba(34,211,238,0.11);">
+          <p class="mini-label" style="color:#22d3ee;margin-bottom:6px;">first 3 actions - do these now</p>
+          <ol>
+            <li>Apply for GitHub Student Pack → education.github.com/pack</li>
+            <li>Update LinkedIn with MMSU + CompE + POS project details</li>
+            <li>Open VS Code and create your first Python file today</li>
+          </ol>
+        </section>` : "";
+
+      const rules = phase.id === 4 ? `
+        <section class="extra-box" style="border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.11);">
+          <p class="mini-label" style="color:#fbbf24;margin-bottom:6px;">the non-negotiable rules</p>
+          <p>→ Never inflate lifestyle faster than income growth</p>
+          <p>→ Invest every month, no matter what</p>
+          <p>→ Build in public every week</p>
+          <p>→ Focus on one business engine at a time</p>
+        </section>` : "";
+
+      c.innerHTML = `
+        <section class="phase-card" style="--phase-bg:${phase.bg};--phase-border:${phase.border};--phase-color:${phase.color};--phase-dim:${phase.bg};--phase-border-strong:${phase.border};">
+          <div class="phase-head">
+            <div>
+              <h2 class="phase-title">${phase.emoji} ${phase.title}</h2>
+              <p class="phase-period">${phase.period}</p>
+            </div>
+            <div>
+              <p class="phase-target-label">target</p>
+              <p class="phase-target-value">${phase.wealthTarget}</p>
+            </div>
+          </div>
+          <p class="phase-goal">🎯 <b>Phase Goal:</b> ${phase.goal}</p>
+        </section>
+
+        <section>
+          <h3 class="section-label">master checklist</h3>
+          <div class="checklist-wrap" style="--phase-color:${phase.color};--phase-dim:${phase.bg};">
+            ${checklistHtml}
+          </div>
+        </section>
+
+        <section>
+          <h3 class="section-label">skills to learn</h3>
+          ${skillsHtml}
+        </section>
+
+        <section>
+          <h3 class="section-label">phase milestones</h3>
+          <div class="milestone-wrap" style="--phase-color:${phase.color};--phase-dim:${phase.bg};">
+            ${milestonesHtml}
+          </div>
+        </section>
+
+        ${firstActions}
+        ${rules}
       `;
-      wrap.appendChild(c);
-      setTimeout(() => c.remove(), 1400);
-    }
-  }
 
-  function triggerConfetti() {
-    const wrap = document.getElementById('confetti');
-    const colors = ['#22d3ee', '#a78bfa', '#fb923c', '#fbbf24', '#34d399', '#f472b6'];
-    for (let i = 0; i < 120; i++) {
-      setTimeout(() => {
-        const c = document.createElement('div');
-        c.className = 'confetti-piece';
-        c.style.cssText = `
-          left: ${Math.random() * 100}vw;
-          background: ${colors[Math.floor(Math.random() * colors.length)]};
-          animation-duration: ${1.5 + Math.random() * 2}s;
-          animation-name: fall;
-          width: ${5 + Math.random() * 8}px;
-          height: ${5 + Math.random() * 8}px;
-          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
-        `;
-        wrap.appendChild(c);
-        setTimeout(() => c.remove(), 3600);
-      }, Math.random() * 600);
-    }
-  }
+      c.querySelectorAll("[data-check]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          const key = el.dataset.check;
+          if (e.target && e.target.matches("a")) return;
+          toggleChecked(key);
+        });
+      });
 
-  applyState();
-</script>
+      c.querySelectorAll(".skill-check").forEach((cb) => {
+        cb.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleChecked(cb.dataset.check);
+        });
+      });
+
+      c.querySelectorAll("[data-toggle-skill]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          if (e.target && e.target.matches(".skill-check")) return;
+          toggleOpen(el.dataset.toggleSkill);
+        });
+      });
+    }
+
+    function renderProgress() {
+      const totals = getTotals();
+      const pct = document.getElementById("overallPct");
+      const bar = document.getElementById("overallBar");
+      const meta = document.getElementById("overallMeta");
+
+      pct.textContent = `${totals.pct}%`;
+      bar.style.width = `${totals.pct}%`;
+      meta.textContent = `${totals.completedCount} of ${totals.all} items completed`;
+    }
+
+    function renderAdhd() {
+      const btn = document.getElementById("adhdToggle");
+      const banner = document.getElementById("adhdBanner");
+      const tip = document.getElementById("adhdTip");
+      btn.textContent = `⚡ ADHD Mode ${state.adhdMode ? "ON" : "OFF"}`;
+      btn.classList.toggle("on", state.adhdMode);
+
+      if (state.adhdMode) {
+        banner.classList.add("show");
+        tip.textContent = ADHD_TIPS[state.tipIdx % ADHD_TIPS.length];
+      } else {
+        banner.classList.remove("show");
+      }
+    }
+
+    function render() {
+      renderProgress();
+      renderTabs();
+      renderContent();
+      renderAdhd();
+      bindTopControls();
+    }
+
+    function bindTopControls() {
+      const adhdToggle = document.getElementById("adhdToggle");
+      const adhdBanner = document.getElementById("adhdBanner");
+
+      adhdToggle.onclick = () => {
+        state.adhdMode = !state.adhdMode;
+        save();
+        renderAdhd();
+      };
+
+      adhdBanner.onclick = () => {
+        if (!state.adhdMode) return;
+        state.tipIdx = (state.tipIdx + 1) % ADHD_TIPS.length;
+        save();
+        renderAdhd();
+      };
+    }
+
+    load();
+    render();
+  </script>
 </body>
 </html>
