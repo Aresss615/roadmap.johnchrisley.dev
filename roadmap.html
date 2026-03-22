@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jc's Roadmap to $1M · johnchrisley.dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07090d;
+    --surface: #0e1117;
+    --surface2: #161b24;
+    --border: #1e2635;
+    --text: #dce6f0;
+    --muted: #4a5568;
+    --faint: #1a2030;
+
+    --p1: #22d3ee;
+    --p1-dim: rgba(34,211,238,0.12);
+    --p1-glow: rgba(34,211,238,0.25);
+    --p2: #a78bfa;
+    --p2-dim: rgba(167,139,250,0.12);
+    --p2-glow: rgba(167,139,250,0.25);
+    --p3: #fb923c;
+    --p3-dim: rgba(251,146,60,0.12);
+    --p3-glow: rgba(251,146,60,0.25);
+    --p4: #fbbf24;
+    --p4-dim: rgba(251,191,36,0.12);
+    --p4-glow: rgba(251,191,36,0.3);
+
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(34,211,238,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,211,238,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 60px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .header-tag {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  .header-tag span {
+    color: var(--p1);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5vw, 46px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--p4), var(--p3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+  }
+
+  /* ── OVERALL PROGRESS ── */
+  .overall-progress {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .overall-left {
+    flex: 1;
+  }
+
+  .overall-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .overall-bar-wrap {
+    height: 8px;
+    background: var(--faint);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .overall-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--p1), var(--p4));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .overall-right {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .overall-pct {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--p1), var(--p4));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .overall-fraction {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── PHASE ── */
+  .phase {
+    margin-bottom: 36px;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .phase-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+    box-shadow: 0 0 10px currentColor;
+  }
+
+  .phase-header-text { flex: 1; }
+
+  .phase-num {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .phase-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .phase-timeline {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .phase-toggle {
+    font-size: 18px;
+    color: var(--muted);
+    transition: transform 0.25s ease;
+    line-height: 1;
+    margin-top: 4px;
+  }
+
+  .phase.collapsed .phase-toggle { transform: rotate(-90deg); }
+
+  /* phase progress bar */
+  .phase-progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .phase-bar-wrap {
+    flex: 1;
+    height: 5px;
+    background: var(--faint);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .phase-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .phase-bar-text {
+    font-size: 11px;
+    min-width: 36px;
+    text-align: right;
+  }
+
+  /* tasks */
+  .tasks-wrap {
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(.4,0,.2,1), opacity 0.3s ease;
+    max-height: 2000px;
+    opacity: 1;
+  }
+
+  .phase.collapsed .tasks-wrap {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 2px solid var(--border);
+    padding-left: 20px;
+    margin-left: 5px;
+  }
+
+  .task {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .task:hover {
+    border-color: var(--muted);
+    background: var(--surface2);
+    transform: translateX(2px);
+  }
+
+  .task.done {
+    opacity: 0.55;
+  }
+
+  .task.done .task-label {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+
+  .task.just-checked {
+    animation: pop 0.35s cubic-bezier(.4,0,.2,1);
+  }
+
+  @keyframes pop {
+    0%   { transform: translateX(2px) scale(1); }
+    40%  { transform: translateX(2px) scale(1.025); }
+    100% { transform: translateX(2px) scale(1); }
+  }
+
+  /* custom checkbox */
+  .cb {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--muted);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    margin-top: 1px;
+    font-size: 13px;
+  }
+
+  .task.done .cb {
+    border-color: currentColor;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  .task.done .cb::after {
+    content: '✓';
+    color: var(--bg);
+    font-weight: 700;
+  }
+
+  .task-text { flex: 1; }
+
+  .task-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    transition: color 0.2s;
+  }
+
+  .task-sub {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ── PHASE COLORS ── */
+  .p1 { color: var(--p1); }
+  .p1 .phase-dot { color: var(--p1); background: var(--p1); }
+  .p1 .phase-bar-fill { background: var(--p1); }
+  .p1 .task.done .cb { color: var(--p1); }
+  .p1 .task:hover { border-color: var(--p1); background: var(--p1-dim); }
+
+  .p2 { color: var(--p2); }
+  .p2 .phase-dot { color: var(--p2); background: var(--p2); }
+  .p2 .phase-bar-fill { background: var(--p2); }
+  .p2 .task.done .cb { color: var(--p2); }
+  .p2 .task:hover { border-color: var(--p2); background: var(--p2-dim); }
+
+  .p3 { color: var(--p3); }
+  .p3 .phase-dot { color: var(--p3); background: var(--p3); }
+  .p3 .phase-bar-fill { background: var(--p3); }
+  .p3 .task.done .cb { color: var(--p3); }
+  .p3 .task:hover { border-color: var(--p3); background: var(--p3-dim); }
+
+  .p4 { color: var(--p4); }
+  .p4 .phase-dot { color: var(--p4); background: var(--p4); }
+  .p4 .phase-bar-fill { background: var(--p4); }
+  .p4 .task.done .cb { color: var(--p4); }
+  .p4 .task:hover { border-color: var(--p4); background: var(--p4-dim); }
+
+  /* ── PHASE COMPLETE BANNER ── */
+  .phase-complete {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    animation: slideIn 0.4s cubic-bezier(.4,0,.2,1);
+  }
+
+  .phase-complete.show { display: flex; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .p1 .phase-complete { background: var(--p1-glow); border: 1px solid var(--p1); }
+  .p2 .phase-complete { background: var(--p2-glow); border: 1px solid var(--p2); }
+  .p3 .phase-complete { background: var(--p3-glow); border: 1px solid var(--p3); }
+  .p4 .phase-complete { background: var(--p4-glow); border: 1px solid var(--p4); }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer-left {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .footer-left span { color: var(--p1); }
+
+  .reset-btn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .reset-btn:hover { border-color: var(--muted); color: var(--text); }
+
+  /* ── CONFETTI ── */
+  .confetti-wrap {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    top: -10px;
+    animation: fall linear forwards;
+  }
+
+  @keyframes fall {
+    to {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<div class="confetti-wrap" id="confetti"></div>
+
+<div class="container">
+
+  <header>
+    <p class="header-tag">// <span>johnchrisley.dev</span> · AI Engineering Roadmap</p>
+    <h1>The Road to<br><em>$1 Million USD</em></h1>
+    <p class="header-sub">Check off each milestone. Every box is a step closer. 🎯</p>
+  </header>
+
+  <div class="overall-progress">
+    <div class="overall-left">
+      <p class="overall-label">// Total Progress</p>
+      <div class="overall-bar-wrap">
+        <div class="overall-bar-fill" id="overallBar"></div>
+      </div>
+    </div>
+    <div class="overall-right">
+      <div class="overall-pct" id="overallPct">0%</div>
+      <div class="overall-fraction" id="overallFrac">0 / 0 done</div>
+    </div>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase p1" id="phase-1">
+    <div class="phase-header" onclick="togglePhase('phase-1')">
+      <div class="phase-dot"></div>
+      <div class="phase-header-text">
+        <div class="phase-num">Phase 01</div>
+        <div class="phase-title">Foundation</div>
+        <div class="phase-timeline">Now → 2027 · Python · Git · DSA · Linux · Fullstack</div>
+      </div>
+      <div class="phase-toggle">▾</div>
+    </div>
+    <div class="phase-progress-row">
+      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-1"></div></div>
+      <div class="phase-bar-text p1" id="frac-1">0/12</div>
+    </div>
+    <div class="phase-complete" id="done-1">🎉 Phase 1 Complete — Foundation locked in!</div>
+    <div class="tasks-wrap">
+      <div class="tasks" id="tasks-1">
+        <div class="task" onclick="toggle(this)" data-id="1-1">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Learn Python basics</span>
+            <span class="task-sub">Syntax, data types, control flow, functions, OOP</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-2">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Build 5 Python projects</span>
+            <span class="task-sub">At least 2 must be real tools you actually use</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-3">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Master Git & GitHub</span>
+            <span class="task-sub">Commits, branches, pull requests, merge conflicts</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-4">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Build a GitHub streak habit</span>
+            <span class="task-sub">Push code consistently — visible activity graph</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-5">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Learn DSA fundamentals</span>
+            <span class="task-sub">Arrays, linked lists, stacks, queues, hashmaps, trees</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-6">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Solve 50 LeetCode problems</span>
+            <span class="task-sub">Easy + Medium — consistent practice beats grinding</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-7">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Learn Linux command line</span>
+            <span class="task-sub">Navigation, file ops, permissions, bash scripting basics</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-8">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Learn HTML / CSS / JS properly</span>
+            <span class="task-sub">DOM, events, async/await, fetch API</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-9">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Build a fullstack web app</span>
+            <span class="task-sub">Frontend + backend + database, deployed live</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-10">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Ship POS System v1</span>
+            <span class="task-sub">Family grocery store live on it and actually using it</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-11">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Portfolio live at johnchrisley.dev</span>
+            <span class="task-sub">Projects, skills, contact — looks legit to recruiters</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="1-12">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Graduate from MMSU 🎓</span>
+            <span class="task-sub">BS Computer Engineering — the foundation is done</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase p2" id="phase-2">
+    <div class="phase-header" onclick="togglePhase('phase-2')">
+      <div class="phase-dot"></div>
+      <div class="phase-header-text">
+        <div class="phase-num">Phase 02</div>
+        <div class="phase-title">AI Engineering Entry</div>
+        <div class="phase-timeline">2027 → 2029 · LLM APIs · RAG · Docker · AWS · Upwork</div>
+      </div>
+      <div class="phase-toggle">▾</div>
+    </div>
+    <div class="phase-progress-row">
+      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-2"></div></div>
+      <div class="phase-bar-text p2" id="frac-2">0/9</div>
+    </div>
+    <div class="phase-complete" id="done-2">🚀 Phase 2 Complete — You're an AI engineer now!</div>
+    <div class="tasks-wrap">
+      <div class="tasks" id="tasks-2">
+        <div class="task" onclick="toggle(this)" data-id="2-1">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Learn LLM APIs (OpenAI + Anthropic)</span>
+            <span class="task-sub">Prompting, function calling, streaming, system prompts</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-2">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Build a RAG application</span>
+            <span class="task-sub">Vector DB + embeddings + retrieval pipeline — deployed</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-3">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Learn Docker</span>
+            <span class="task-sub">Containerize your apps, docker-compose, deployment basics</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-4">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Earn AWS Cloud Practitioner cert ☁️</span>
+            <span class="task-sub">First AWS cert — opens doors to cloud roles</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-5">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Get first Upwork client</span>
+            <span class="task-sub">Land a real paid AI/dev project — any amount counts</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-6">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Reach ₱50,000/month freelancing</span>
+            <span class="task-sub">Consistent income stream outside your job</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-7">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Launch POS SaaS (multi-tenant)</span>
+            <span class="task-sub">₱500-1500/month per store — at least 5 paying customers</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-8">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Open IBKR account + start investing</span>
+            <span class="task-sub">30%+ of every paycheck: VOO, QQQ, VXUS core allocation</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="2-9">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Land first AI engineering job 💼</span>
+            <span class="task-sub">Full-time or contract — remote preferred</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase p3" id="phase-3">
+    <div class="phase-header" onclick="togglePhase('phase-3')">
+      <div class="phase-dot"></div>
+      <div class="phase-header-text">
+        <div class="phase-num">Phase 03</div>
+        <div class="phase-title">Scale Up</div>
+        <div class="phase-timeline">2029 → 2032 · MLOps · AWS SAA · SaaS · Agency</div>
+      </div>
+      <div class="phase-toggle">▾</div>
+    </div>
+    <div class="phase-progress-row">
+      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-3"></div></div>
+      <div class="phase-bar-text p3" id="frac-3">0/7</div>
+    </div>
+    <div class="phase-complete" id="done-3">🔥 Phase 3 Complete — You're scaling hard!</div>
+    <div class="tasks-wrap">
+      <div class="tasks" id="tasks-3">
+        <div class="task" onclick="toggle(this)" data-id="3-1">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Earn AWS Solutions Architect Associate</span>
+            <span class="task-sub">Major credibility boost + higher rates</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="3-2">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Learn MLOps fundamentals</span>
+            <span class="task-sub">Model deployment, monitoring, CI/CD for ML pipelines</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="3-3">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Scale POS SaaS to 50+ customers</span>
+            <span class="task-sub">Add AI features: inventory prediction, sales insights</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="3-4">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Build an agency model</span>
+            <span class="task-sub">Hire 2-3 devs, systemize delivery, take higher-value work</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="3-5">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Reach $5,000/month total income</span>
+            <span class="task-sub">Job + freelancing + SaaS MRR combined</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="3-6">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">IBKR portfolio hits $50,000</span>
+            <span class="task-sub">Consistent 30%+ paycheck investing, compounding in action</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="3-7">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Net worth crosses $100,000 USD 💯</span>
+            <span class="task-sub">First major milestone — prove the system works</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase p4" id="phase-4">
+    <div class="phase-header" onclick="togglePhase('phase-4')">
+      <div class="phase-dot"></div>
+      <div class="phase-header-text">
+        <div class="phase-num">Phase 04</div>
+        <div class="phase-title">$1M Endgame</div>
+        <div class="phase-timeline">2032 → 2037 · SaaS Exit · Investments · Net Worth</div>
+      </div>
+      <div class="phase-toggle">▾</div>
+    </div>
+    <div class="phase-progress-row">
+      <div class="phase-bar-wrap"><div class="phase-bar-fill" id="bar-4"></div></div>
+      <div class="phase-bar-text p4" id="frac-4">0/5</div>
+    </div>
+    <div class="phase-complete" id="done-4">👑 DONE. You made it. $1M+ net worth. MILLIONAIRE.</div>
+    <div class="tasks-wrap">
+      <div class="tasks" id="tasks-4">
+        <div class="task" onclick="toggle(this)" data-id="4-1">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">POS SaaS hits $10,000 MRR</span>
+            <span class="task-sub">100+ stores paying monthly — product-market fit confirmed</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="4-2">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Investment portfolio hits $500,000</span>
+            <span class="task-sub">VOO + QQQ + diversified allocation compounding hard</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="4-3">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Net worth crosses $500,000</span>
+            <span class="task-sub">Halfway there. Don't stop now.</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="4-4">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Execute SaaS acquisition or scale</span>
+            <span class="task-sub">Either sell for 3-5x ARR or double down and grow</span>
+          </div>
+        </div>
+        <div class="task" onclick="toggle(this)" data-id="4-5">
+          <div class="cb"></div>
+          <div class="task-text">
+            <span class="task-label">Net worth crosses $1,000,000 USD 🎯</span>
+            <span class="task-sub">Dollar multimillionaire. The goal from day one.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-left">
+      Built by <span>Jc</span> · <span>johnchrisley.dev</span>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">reset progress</button>
+  </footer>
+
+</div>
+
+<script>
+  const STORAGE_KEY = 'jc_roadmap_v1';
+
+  const PHASE_COUNTS = { 1: 12, 2: 9, 3: 7, 4: 5 };
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function saveState(state) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function toggle(el) {
+    const state = loadState();
+    const id = el.dataset.id;
+    const wasDone = el.classList.contains('done');
+
+    if (!wasDone) {
+      el.classList.add('done', 'just-checked');
+      state[id] = true;
+      setTimeout(() => el.classList.remove('just-checked'), 400);
+      spawnMini(el);
+    } else {
+      el.classList.remove('done');
+      delete state[id];
+    }
+
+    saveState(state);
+    updateAll(state);
+  }
+
+  function updateAll(state) {
+    let totalDone = 0;
+    let totalAll = 0;
+
+    [1, 2, 3, 4].forEach(p => {
+      const count = PHASE_COUNTS[p];
+      let done = 0;
+      for (let i = 1; i <= count; i++) {
+        if (state[`${p}-${i}`]) done++;
+      }
+      totalDone += done;
+      totalAll += count;
+
+      const pct = count ? Math.round((done / count) * 100) : 0;
+      document.getElementById(`bar-${p}`).style.width = pct + '%';
+      document.getElementById(`frac-${p}`).textContent = `${done}/${count}`;
+
+      const banner = document.getElementById(`done-${p}`);
+      if (done === count) banner.classList.add('show');
+      else banner.classList.remove('show');
+    });
+
+    const overallPct = totalAll ? Math.round((totalDone / totalAll) * 100) : 0;
+    document.getElementById('overallBar').style.width = overallPct + '%';
+    document.getElementById('overallPct').textContent = overallPct + '%';
+    document.getElementById('overallFrac').textContent = `${totalDone} / ${totalAll} done`;
+
+    if (totalDone === totalAll && totalAll > 0) {
+      triggerConfetti();
+    }
+  }
+
+  function applyState() {
+    const state = loadState();
+    Object.keys(state).forEach(id => {
+      const el = document.querySelector(`[data-id="${id}"]`);
+      if (el) el.classList.add('done');
+    });
+    updateAll(state);
+  }
+
+  function togglePhase(id) {
+    document.getElementById(id).classList.toggle('collapsed');
+  }
+
+  function resetAll() {
+    if (!confirm('Reset all progress? This cannot be undone.')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    document.querySelectorAll('.task').forEach(t => t.classList.remove('done'));
+    updateAll({});
+  }
+
+  // Tiny burst on single check
+  function spawnMini(taskEl) {
+    const rect = taskEl.getBoundingClientRect();
+    const wrap = document.getElementById('confetti');
+    const colors = ['#22d3ee', '#a78bfa', '#fb923c', '#fbbf24', '#34d399'];
+    for (let i = 0; i < 8; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.cssText = `
+        left: ${rect.left + rect.width * 0.5 + (Math.random() - 0.5) * 60}px;
+        top: ${rect.top + rect.height * 0.5}px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        animation-duration: ${0.6 + Math.random() * 0.6}s;
+        animation-name: fall;
+        transform: rotate(${Math.random() * 360}deg);
+        width: ${4 + Math.random() * 6}px;
+        height: ${4 + Math.random() * 6}px;
+      `;
+      wrap.appendChild(c);
+      setTimeout(() => c.remove(), 1400);
+    }
+  }
+
+  function triggerConfetti() {
+    const wrap = document.getElementById('confetti');
+    const colors = ['#22d3ee', '#a78bfa', '#fb923c', '#fbbf24', '#34d399', '#f472b6'];
+    for (let i = 0; i < 120; i++) {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.cssText = `
+          left: ${Math.random() * 100}vw;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          animation-duration: ${1.5 + Math.random() * 2}s;
+          animation-name: fall;
+          width: ${5 + Math.random() * 8}px;
+          height: ${5 + Math.random() * 8}px;
+          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        `;
+        wrap.appendChild(c);
+        setTimeout(() => c.remove(), 3600);
+      }, Math.random() * 600);
+    }
+  }
+
+  applyState();
+</script>
+</body>
+</html>
