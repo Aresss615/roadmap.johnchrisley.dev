@@ -6,37 +6,35 @@
   <title>AI Engineering Roadmap | johnchrisley.dev</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=Inter:ital,opsz,wght@0,14..32,300..600;1,14..32,300..400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #07090d;
-      --surface: #0e1117;
-      --surface-2: #131927;
-      --surface-3: #1a2030;
-      --border: #1f2738;
-      --text: #dce6f0;
-      --muted: #6b7890;
-      --faint: #111827;
+      --bg: #0b0c0f;
+      --surface: #15181d;
+      --surface-2: #1b1f26;
+      --surface-3: #101216;
+      --border: #2a2f38;
+      --text: #aeb4bf;
+      --muted: #757d89;
+      --faint: #1b1f26;
 
-      --p1: #22d3ee;
-      --p2: #a78bfa;
-      --p3: #fb923c;
-      --p4: #fbbf24;
+      --p1: #d7dbe2;
+      --p2: #c5cbd6;
+      --p3: #b3bac6;
+      --p4: #f3f5f7;
 
       --ok: #34d399;
       --warn: #f59e0b;
       --danger: #ef4444;
 
       --display: "Syne", sans-serif;
-      --mono: "JetBrains Mono", monospace;
+      --mono: "Inter", system-ui, -apple-system, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: radial-gradient(circle at 20% -10%, rgba(34, 211, 238, 0.1), transparent 30%),
-                  radial-gradient(circle at 80% 0%, rgba(167, 139, 250, 0.08), transparent 35%),
-                  var(--bg);
+      background: var(--bg);
       color: var(--text);
       font-family: var(--mono);
       min-height: 100vh;
@@ -49,16 +47,16 @@
       inset: 0;
       pointer-events: none;
       z-index: 0;
-      background-image:
-        linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
-      background-size: 36px 36px;
+      background:
+        radial-gradient(ellipse 72% 56% at 72% 14%, rgba(215,219,226,0.12), transparent),
+        radial-gradient(ellipse 50% 42% at 18% 86%, rgba(215,219,226,0.06), transparent);
     }
 
     .shell {
       position: relative;
       z-index: 1;
-      max-width: 880px;
+      width: 90%;
+      max-width: 1140px;
       margin: 0 auto;
       padding: 0 16px 92px;
     }
@@ -81,10 +79,10 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      border: 1px solid rgba(34, 211, 238, 0.35);
-      background: rgba(34, 211, 238, 0.08);
+      border: 1px solid rgba(215, 219, 226, 0.35);
+      background: rgba(215, 219, 226, 0.08);
       padding: 7px;
-      box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+      box-shadow: 0 0 20px rgba(215, 219, 226, 0.16);
     }
 
     .hero-tag {
@@ -107,10 +105,7 @@
     }
 
     h1 .grad {
-      background: linear-gradient(95deg, var(--p1), var(--p4));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--p1);
     }
 
     .hero-sub {
@@ -122,7 +117,7 @@
 
     .progress-card {
       border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(14,17,23,0.9), rgba(19,25,39,0.7));
+      background: linear-gradient(180deg, rgba(21,24,29,0.92), rgba(16,18,22,0.86));
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 12px;
@@ -277,7 +272,7 @@
     .phase-goal {
       margin-top: 12px;
       border: 1px solid rgba(255,255,255,0.11);
-      background: rgba(8, 12, 18, 0.45);
+      background: rgba(16, 18, 22, 0.62);
       border-radius: 10px;
       padding: 10px 12px;
       font-size: 12px;
@@ -632,7 +627,7 @@
       padding: 10px 10px 14px;
       backdrop-filter: blur(14px);
       border-top: 1px solid var(--border);
-      background: rgba(7, 9, 13, 0.86);
+      background: rgba(11, 12, 15, 0.88);
     }
 
     .bottom-btn {
@@ -699,9 +694,9 @@
         label: "Phase 1",
         title: "Build the Weapon",
         period: "Now → Graduation (2027)",
-        color: "#22d3ee",
-        bg: "rgba(34,211,238,0.1)",
-        border: "rgba(34,211,238,0.3)",
+        color: "#d7dbe2",
+        bg: "rgba(215,219,226,0.08)",
+        border: "rgba(215,219,226,0.3)",
         goal: "Become dangerous in the market",
         wealthTarget: "₱0 extra — invest in yourself",
         emoji: "⚔️",
@@ -818,9 +813,9 @@
         label: "Phase 2",
         title: "Launch & Stack",
         period: "2027-2029 (Years 1-2 Post-Grad)",
-        color: "#a78bfa",
-        bg: "rgba(167,139,250,0.1)",
-        border: "rgba(167,139,250,0.3)",
+        color: "#c5cbd6",
+        bg: "rgba(197,203,214,0.08)",
+        border: "rgba(197,203,214,0.3)",
         goal: "Income stacking + first product revenue",
         wealthTarget: "$30,000-50,000 USD net worth",
         emoji: "🚀",
@@ -947,9 +942,9 @@
         label: "Phase 3",
         title: "Scale the Engine",
         period: "2029-2032 (Years 3-5)",
-        color: "#fb923c",
-        bg: "rgba(251,146,60,0.1)",
-        border: "rgba(251,146,60,0.3)",
+        color: "#b3bac6",
+        bg: "rgba(179,186,198,0.08)",
+        border: "rgba(179,186,198,0.3)",
         goal: "Multiple income streams, SaaS hitting 100-500 customers",
         wealthTarget: "$150,000-400,000 USD net worth",
         emoji: "📈",
@@ -1042,9 +1037,9 @@
         label: "Phase 4",
         title: "The Wealth Inflection",
         period: "2032-2037 (Years 6-10)",
-        color: "#fbbf24",
-        bg: "rgba(251,191,36,0.1)",
-        border: "rgba(251,191,36,0.3)",
+        color: "#f3f5f7",
+        bg: "rgba(243,245,247,0.08)",
+        border: "rgba(243,245,247,0.3)",
         goal: "Cross $1M USD. Exit or scale the SaaS.",
         wealthTarget: "$800,000-$2,000,000+ USD",
         emoji: "💎",
@@ -1346,8 +1341,8 @@
       }).join("");
 
       const firstActions = phase.id === 1 ? `
-        <section class="extra-box" style="border-color:rgba(34,211,238,0.4);background:rgba(34,211,238,0.11);">
-          <p class="mini-label" style="color:#22d3ee;margin-bottom:6px;">first 3 actions - do these now</p>
+        <section class="extra-box" style="border-color:rgba(215,219,226,0.35);background:rgba(215,219,226,0.08);">
+          <p class="mini-label" style="color:#d7dbe2;margin-bottom:6px;">first 3 actions - do these now</p>
           <ol>
             <li>Apply for GitHub Student Pack → education.github.com/pack</li>
             <li>Update LinkedIn with MMSU + CompE + POS project details</li>
@@ -1356,8 +1351,8 @@
         </section>` : "";
 
       const rules = phase.id === 4 ? `
-        <section class="extra-box" style="border-color:rgba(251,191,36,0.4);background:rgba(251,191,36,0.11);">
-          <p class="mini-label" style="color:#fbbf24;margin-bottom:6px;">the non-negotiable rules</p>
+        <section class="extra-box" style="border-color:rgba(215,219,226,0.35);background:rgba(215,219,226,0.08);">
+          <p class="mini-label" style="color:#f3f5f7;margin-bottom:6px;">the non-negotiable rules</p>
           <p>→ Never inflate lifestyle faster than income growth</p>
           <p>→ Invest every month, no matter what</p>
           <p>→ Build in public every week</p>
