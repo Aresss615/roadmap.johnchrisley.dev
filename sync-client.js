@@ -1,28 +1,27 @@
-(function roadmapCloudSync() {
-  if (typeof STORAGE_KEY === "undefined" || typeof render !== "function" || typeof state === "undefined") {
+(function roadmapSupabaseSync() {
+  if (
+    typeof STORAGE_KEY === "undefined" ||
+    typeof render !== "function" ||
+    typeof state === "undefined"
+  ) {
     return;
   }
 
-  const SYNC_SETTINGS_KEY = "jc_roadmap_cloud_sync_v1";
-  const DEFAULT_PROFILE_ID = "johnchrisley";
-  const DEFAULT_LOCAL_API = "http://localhost:8787";
+  const syncConfig = window.ROADMAP_SUPABASE_CONFIG || {};
+  const hasSupabaseLibrary = Boolean(window.supabase && window.supabase.createClient);
+  const hasProjectConfig = Boolean(syncConfig.url && syncConfig.anonKey);
   const syncSession = {
+    client: null,
+    user: null,
     connected: false,
     mode: "idle",
-    pendingAutoSync: false,
     timerId: 0,
+    pendingAutoSync: false,
     feedback: "",
     feedbackTone: "neutral",
     lastSyncedAt: 0
   };
-
-  function getDefaultApiBase() {
-    if (window.location.protocol === "http:" || window.location.protocol === "https:") {
-      return window.location.origin;
-    }
-
-    return DEFAULT_LOCAL_API;
-  }
+  const SETTINGS_KEY = "jc_roadmap_supabase_email_v1";
 
   function normalizeBooleanMap(value) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
@@ -98,50 +97,29 @@
     render();
   }
 
-  function readSyncSettings() {
+  function readSavedEmail() {
     try {
-      const raw = JSON.parse(localStorage.getItem(SYNC_SETTINGS_KEY) || "{}");
-      return {
-        apiBase: normalizeApiBase(raw.apiBase) || getDefaultApiBase(),
-        profileId: normalizeProfileId(raw.profileId) || DEFAULT_PROFILE_ID,
-        syncKey: typeof raw.syncKey === "string" ? raw.syncKey : ""
-      };
+      return String(localStorage.getItem(SETTINGS_KEY) || "").trim();
     } catch (_) {
-      return {
-        apiBase: getDefaultApiBase(),
-        profileId: DEFAULT_PROFILE_ID,
-        syncKey: ""
-      };
+      return "";
     }
   }
 
-  function persistSyncSettings(settings) {
-    localStorage.setItem(SYNC_SETTINGS_KEY, JSON.stringify(settings));
-  }
-
-  function normalizeApiBase(value) {
-    return String(value || "").trim().replace(/\/+$/, "");
-  }
-
-  function normalizeProfileId(value) {
-    return String(value || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9_-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 48);
+  function persistEmail(email) {
+    localStorage.setItem(SETTINGS_KEY, String(email || "").trim());
   }
 
   function getUi() {
     return {
       panel: document.getElementById("cloudSyncPanel"),
-      apiBase: document.getElementById("syncApiBase"),
-      profileId: document.getElementById("syncProfileId"),
-      syncKey: document.getElementById("syncKey"),
-      connectButton: document.getElementById("syncConnectButton"),
+      email: document.getElementById("syncEmail"),
+      sendLinkButton: document.getElementById("syncSendLinkButton"),
       saveButton: document.getElementById("syncSaveButton"),
+      signOutButton: document.getElementById("syncSignOutButton"),
       statusPill: document.getElementById("syncStatusPill"),
-      feedback: document.getElementById("syncFeedback")
+      feedback: document.getElementById("syncFeedback"),
+      emailWrap: document.getElementById("syncEmailWrap"),
+      userLine: document.getElementById("syncUserLine")
     };
   }
 
@@ -164,19 +142,35 @@
   }
 
   function buildDefaultFeedback() {
-    if (syncSession.mode === "connecting") {
-      return "Connecting to the roadmap backend...";
+    if (!hasSupabaseLibrary) {
+      return "Supabase library failed to load, so cloud sync is unavailable right now.";
+    }
+
+    if (!hasProjectConfig) {
+      return "Add your Supabase project URL and anon key in index.html to enable free cloud sync.";
+    }
+
+    if (syncSession.mode === "sending-link") {
+      return "Sending your sign-in link...";
+    }
+
+    if (syncSession.mode === "loading") {
+      return "Loading cloud progress...";
     }
 
     if (syncSession.mode === "saving") {
-      return "Saving your roadmap progress to the backend...";
+      return "Saving your roadmap progress online...";
     }
 
-    if (syncSession.connected && syncSession.lastSyncedAt) {
-      return `Cloud sync is active. Last successful sync: ${formatTimestamp(syncSession.lastSyncedAt)}.`;
+    if (syncSession.connected && syncSession.user && syncSession.lastSyncedAt) {
+      return `Cloud sync is active for ${syncSession.user.email}. Last sync: ${formatTimestamp(syncSession.lastSyncedAt)}.`;
     }
 
-    return "Checklist progress still works locally. Add an API URL, profile ID, and sync key to back it up across devices.";
+    if (syncSession.connected && syncSession.user) {
+      return `Signed in as ${syncSession.user.email}. Your roadmap can now sync across devices.`;
+    }
+
+    return "Checklist progress still works locally. Sign in with email to save it online for free.";
   }
 
   function updateSyncUi() {
@@ -187,120 +181,96 @@
     }
 
     const hasError = syncSession.feedbackTone === "error";
-    const uiSettings = readSyncSettings();
     const feedbackText = syncSession.feedback || buildDefaultFeedback();
+    const busy = syncSession.mode !== "idle";
 
-    ui.apiBase.value = ui.apiBase.value || uiSettings.apiBase;
-    ui.profileId.value = ui.profileId.value || uiSettings.profileId;
-    ui.syncKey.value = ui.syncKey.value || uiSettings.syncKey;
-
-    ui.panel.dataset.tone = hasError ? "error" : syncSession.connected ? "success" : "neutral";
     ui.feedback.textContent = feedbackText;
     ui.feedback.dataset.tone = syncSession.feedbackTone || "neutral";
+    ui.email.disabled = busy || syncSession.connected || !hasProjectConfig;
+    ui.sendLinkButton.disabled = busy || syncSession.connected || !hasProjectConfig;
+    ui.saveButton.disabled = busy || !syncSession.connected;
+    ui.signOutButton.disabled = busy || !syncSession.connected;
+    ui.emailWrap.hidden = syncSession.connected;
+    ui.userLine.hidden = !syncSession.connected;
+    ui.userLine.textContent = syncSession.user ? `Signed in as ${syncSession.user.email}` : "";
 
-    if (syncSession.mode === "connecting") {
-      ui.statusPill.textContent = "Connecting";
-    } else if (syncSession.mode === "saving") {
+    if (syncSession.mode === "sending-link") {
+      ui.statusPill.textContent = "Email Link";
+      ui.statusPill.dataset.state = "busy";
+    } else if (syncSession.mode === "loading" || syncSession.mode === "saving") {
       ui.statusPill.textContent = "Syncing";
+      ui.statusPill.dataset.state = "busy";
     } else if (hasError) {
       ui.statusPill.textContent = "Needs Attention";
+      ui.statusPill.dataset.state = "error";
     } else if (syncSession.connected) {
       ui.statusPill.textContent = "Cloud Active";
+      ui.statusPill.dataset.state = "success";
+    } else if (!hasProjectConfig) {
+      ui.statusPill.textContent = "Setup Needed";
+      ui.statusPill.dataset.state = "error";
     } else {
       ui.statusPill.textContent = "Local Only";
+      ui.statusPill.dataset.state = "neutral";
     }
-
-    ui.statusPill.dataset.state = syncSession.mode === "idle"
-      ? syncSession.connected
-        ? "success"
-        : hasError
-          ? "error"
-          : "neutral"
-      : "busy";
-
-    const inputsDisabled = syncSession.mode !== "idle";
-    ui.apiBase.disabled = inputsDisabled;
-    ui.profileId.disabled = inputsDisabled;
-    ui.syncKey.disabled = inputsDisabled;
-    ui.connectButton.disabled = syncSession.mode !== "idle";
-    ui.saveButton.disabled = syncSession.mode !== "idle";
-    ui.connectButton.textContent = syncSession.connected ? "Reconnect" : "Connect";
   }
 
-  async function requestJson(apiBase, pathname, body, method) {
-    const response = await fetch(`${apiBase}${pathname}`, {
-      method: method || "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: body ? JSON.stringify(body) : undefined
-    });
-
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      const error = new Error(payload.message || `Request failed with status ${response.status}.`);
-      error.code = payload.code || "REQUEST_FAILED";
-      throw error;
+  function createClient() {
+    if (!hasSupabaseLibrary || !hasProjectConfig) {
+      return null;
     }
 
-    return payload;
-  }
-
-  async function verifyBackend(apiBase) {
-    const response = await fetch(`${apiBase}/api/health`);
-    const payload = await response.json().catch(() => ({}));
-
-    if (!response.ok || !payload.ok) {
-      throw new Error("API URL did not respond like the roadmap backend.");
-    }
-
-    return payload;
-  }
-
-  async function loadRemoteSnapshot(settings) {
-    try {
-      const payload = await requestJson(settings.apiBase, "/api/state/load", {
-        profileId: settings.profileId,
-        syncKey: settings.syncKey
+    if (!syncSession.client) {
+      syncSession.client = window.supabase.createClient(syncConfig.url, syncConfig.anonKey, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
       });
-      return payload;
-    } catch (error) {
-      if (error.code === "PROFILE_NOT_FOUND") {
-        return null;
-      }
-      throw error;
     }
+
+    return syncSession.client;
   }
 
   async function saveRemoteSnapshot(reason, snapshotOverride) {
-    const settings = readSyncSettings();
-    const snapshot = snapshotOverride || buildSnapshot({ touch: false });
+    const client = createClient();
 
+    if (!client || !syncSession.user) {
+      return;
+    }
+
+    const snapshot = snapshotOverride || buildSnapshot({ touch: false });
     syncSession.mode = "saving";
     updateSyncUi();
 
     try {
-      const payload = await requestJson(settings.apiBase, "/api/state/save", {
-        profileId: settings.profileId,
-        syncKey: settings.syncKey,
-        payload: snapshot
-      });
+      const { data, error } = await client
+        .from("roadmap_progress")
+        .upsert(
+          {
+            user_id: syncSession.user.id,
+            email: syncSession.user.email,
+            payload: snapshot,
+            updated_at_ms: snapshot.updatedAt
+          },
+          { onConflict: "user_id" }
+        )
+        .select("payload, updated_at_ms")
+        .single();
 
-      const remoteSnapshot = normalizeSnapshot(payload.state);
-      syncSession.connected = true;
-      syncSession.lastSyncedAt = remoteSnapshot.updatedAt;
+      if (error) {
+        throw error;
+      }
+
+      syncSession.lastSyncedAt = Number(data.updated_at_ms || snapshot.updatedAt || Date.now());
       setFeedback(
         reason === "manual"
-          ? `Cloud save complete. Last synced: ${formatTimestamp(remoteSnapshot.updatedAt)}.`
-          : `Changes synced to the cloud. Last synced: ${formatTimestamp(remoteSnapshot.updatedAt)}.`,
+          ? `Cloud save complete. Last synced: ${formatTimestamp(syncSession.lastSyncedAt)}.`
+          : `Changes synced to Supabase. Last synced: ${formatTimestamp(syncSession.lastSyncedAt)}.`,
         "success"
       );
     } catch (error) {
-      if (error.code === "INVALID_SYNC_KEY") {
-        syncSession.connected = false;
-      }
-
       setFeedback(`Cloud sync failed: ${error.message}`, "error");
       throw error;
     } finally {
@@ -309,85 +279,54 @@
     }
   }
 
-  function validateSettings(settings) {
-    if (!settings.apiBase) {
-      return "API URL is required.";
-    }
+  async function loadRemoteSnapshot() {
+    const client = createClient();
 
-    if (!/^https?:\/\//i.test(settings.apiBase)) {
-      return "API URL must start with http:// or https://";
-    }
-
-    if (!settings.profileId || settings.profileId.length < 3) {
-      return "Profile ID must be at least 3 characters.";
-    }
-
-    if (!settings.syncKey || settings.syncKey.length < 8) {
-      return "Sync key must be at least 8 characters.";
-    }
-
-    return "";
-  }
-
-  function readFormSettings() {
-    const ui = getUi();
-
-    return {
-      apiBase: normalizeApiBase(ui.apiBase.value),
-      profileId: normalizeProfileId(ui.profileId.value),
-      syncKey: ui.syncKey.value.trim()
-    };
-  }
-
-  async function connectSync() {
-    const settings = readFormSettings();
-    const validationError = validateSettings(settings);
-
-    if (validationError) {
-      setFeedback(validationError, "error");
+    if (!client || !syncSession.user) {
       return;
     }
 
-    persistSyncSettings(settings);
-    syncSession.mode = "connecting";
-    syncSession.connected = false;
+    syncSession.mode = "loading";
     updateSyncUi();
 
     try {
-      await verifyBackend(settings.apiBase);
+      const { data, error } = await client
+        .from("roadmap_progress")
+        .select("payload, updated_at_ms")
+        .eq("user_id", syncSession.user.id)
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+
       const localSnapshot = buildSnapshot({ touch: false });
-      const remotePayload = await loadRemoteSnapshot(settings);
 
-      syncSession.connected = true;
-
-      if (!remotePayload) {
-        await saveRemoteSnapshot("manual", localSnapshot);
+      if (!data || !data.payload) {
+        syncSession.lastSyncedAt = 0;
+        setFeedback("No cloud save was found yet, so this device is still using local progress.", "neutral");
+        if (localSnapshot.updatedAt > 0) {
+          await saveRemoteSnapshot("manual", localSnapshot);
+        }
         return;
       }
 
-      const remoteSnapshot = normalizeSnapshot(remotePayload.state);
-      const localUpdatedAt = localSnapshot.updatedAt || 0;
-      const remoteUpdatedAt = remoteSnapshot.updatedAt || 0;
+      const remoteSnapshot = normalizeSnapshot(data.payload);
+      const remoteUpdatedAt = Number(data.updated_at_ms || remoteSnapshot.updatedAt || 0);
+      const localUpdatedAt = Number(localSnapshot.updatedAt || 0);
 
       if (remoteUpdatedAt > localUpdatedAt) {
-        applySnapshot(remoteSnapshot);
         syncSession.lastSyncedAt = remoteUpdatedAt;
-        setFeedback(
-          `Cloud progress loaded on this device. Last synced: ${formatTimestamp(remoteUpdatedAt)}.`,
-          "success"
-        );
+        applySnapshot({ ...remoteSnapshot, updatedAt: remoteUpdatedAt });
+        setFeedback(`Cloud progress loaded. Last synced: ${formatTimestamp(remoteUpdatedAt)}.`, "success");
       } else if (localUpdatedAt > remoteUpdatedAt) {
         await saveRemoteSnapshot("manual", localSnapshot);
       } else {
         syncSession.lastSyncedAt = remoteUpdatedAt;
-        setFeedback(
-          `Cloud sync connected. Last synced: ${formatTimestamp(remoteUpdatedAt)}.`,
-          "success"
-        );
+        setFeedback(`Cloud sync connected. Last synced: ${formatTimestamp(remoteUpdatedAt)}.`, "success");
       }
     } catch (error) {
-      syncSession.connected = false;
-      setFeedback(`Unable to connect: ${error.message}`, "error");
+      setFeedback(`Could not load cloud progress: ${error.message}`, "error");
     } finally {
       syncSession.mode = "idle";
       updateSyncUi();
@@ -412,6 +351,59 @@
         scheduleAutoSync();
       }
     }, 500);
+  }
+
+  async function sendMagicLink() {
+    const ui = getUi();
+    const email = String(ui.email.value || "").trim().toLowerCase();
+
+    if (!email || !email.includes("@")) {
+      setFeedback("Enter a valid email address first.", "error");
+      return;
+    }
+
+    const client = createClient();
+    if (!client) {
+      setFeedback("Supabase is not configured yet in index.html.", "error");
+      return;
+    }
+
+    syncSession.mode = "sending-link";
+    persistEmail(email);
+    updateSyncUi();
+
+    try {
+      const redirectTo = window.location.origin + window.location.pathname;
+      const { error } = await client.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: redirectTo }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setFeedback(`Magic link sent to ${email}. Open it on any device to sync your roadmap there too.`, "success");
+    } catch (error) {
+      setFeedback(`Could not send sign-in link: ${error.message}`, "error");
+    } finally {
+      syncSession.mode = "idle";
+      updateSyncUi();
+    }
+  }
+
+  async function signOut() {
+    const client = createClient();
+    if (!client) {
+      return;
+    }
+
+    await client.auth.signOut();
+    syncSession.user = null;
+    syncSession.connected = false;
+    syncSession.lastSyncedAt = 0;
+    setFeedback("Signed out. Your progress still stays in this browser locally.", "neutral");
+    updateSyncUi();
   }
 
   function installStyles() {
@@ -482,7 +474,7 @@
       }
       .cloud-sync-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: minmax(0, 1fr);
         gap: 10px;
       }
       .cloud-sync-field {
@@ -533,7 +525,8 @@
         opacity: 0.6;
         cursor: wait;
       }
-      .cloud-sync-feedback {
+      .cloud-sync-feedback,
+      .cloud-sync-user {
         margin-top: 10px;
         font-size: 12px;
         line-height: 1.55;
@@ -544,14 +537,6 @@
       }
       .cloud-sync-feedback[data-tone="success"] {
         color: #86efac;
-      }
-      @media (max-width: 760px) {
-        .cloud-sync-grid {
-          grid-template-columns: 1fr;
-        }
-        .cloud-sync-head {
-          flex-direction: column;
-        }
       }
     `;
     document.head.appendChild(style);
@@ -567,7 +552,7 @@
       return;
     }
 
-    const settings = readSyncSettings();
+    const savedEmail = readSavedEmail();
     const card = document.createElement("section");
     card.id = "cloudSyncPanel";
     card.className = "cloud-sync-card";
@@ -580,51 +565,74 @@
         <span class="cloud-sync-pill" id="syncStatusPill" data-state="neutral">Local Only</span>
       </div>
       <p class="cloud-sync-copy">
-        Save your roadmap checklist to a backend instead of only this browser.
-        If the frontend still lives on GitHub Pages, point API URL to the separate backend you deploy for this roadmap.
+        This roadmap can use Supabase's free tier as a web-based backend. Sign in with email and your checklist will sync across devices while the site stays static.
       </p>
       <div class="cloud-sync-grid">
-        <label class="cloud-sync-field">
-          <span>API URL</span>
-          <input id="syncApiBase" type="url" placeholder="https://roadmap-api.example.com" value="${settings.apiBase}">
-        </label>
-        <label class="cloud-sync-field">
-          <span>Profile ID</span>
-          <input id="syncProfileId" type="text" placeholder="johnchrisley" value="${settings.profileId}">
-        </label>
-        <label class="cloud-sync-field">
-          <span>Sync Key</span>
-          <input id="syncKey" type="password" placeholder="At least 8 characters" value="${settings.syncKey}">
+        <label class="cloud-sync-field" id="syncEmailWrap">
+          <span>Email</span>
+          <input id="syncEmail" type="email" placeholder="you@example.com" value="${savedEmail}">
         </label>
       </div>
       <div class="cloud-sync-actions">
-        <button id="syncConnectButton" type="button">Connect</button>
+        <button id="syncSendLinkButton" type="button">Send Sign-In Link</button>
         <button id="syncSaveButton" type="button">Sync Now</button>
+        <button id="syncSignOutButton" type="button">Sign Out</button>
       </div>
+      <p class="cloud-sync-user" id="syncUserLine" hidden></p>
       <p class="cloud-sync-feedback" id="syncFeedback" data-tone="neutral"></p>
     `;
 
     progressCard.insertAdjacentElement("afterend", card);
 
     const ui = getUi();
-    ui.connectButton.addEventListener("click", () => {
-      void connectSync();
+    ui.sendLinkButton.addEventListener("click", () => {
+      void sendMagicLink();
     });
-
     ui.saveButton.addEventListener("click", async () => {
-      if (!syncSession.connected) {
-        await connectSync();
-        return;
-      }
-
       try {
         await saveRemoteSnapshot("manual");
       } catch (_) {
         return;
       }
     });
+    ui.signOutButton.addEventListener("click", () => {
+      void signOut();
+    });
 
     updateSyncUi();
+  }
+
+  async function hydrateSession() {
+    const client = createClient();
+
+    if (!client) {
+      updateSyncUi();
+      return;
+    }
+
+    const { data, error } = await client.auth.getSession();
+    if (error) {
+      setFeedback(`Could not restore your session: ${error.message}`, "error");
+      return;
+    }
+
+    syncSession.user = data.session ? data.session.user : null;
+    syncSession.connected = Boolean(syncSession.user);
+    updateSyncUi();
+
+    if (syncSession.connected) {
+      await loadRemoteSnapshot();
+    }
+
+    client.auth.onAuthStateChange((_event, session) => {
+      syncSession.user = session ? session.user : null;
+      syncSession.connected = Boolean(syncSession.user);
+      updateSyncUi();
+
+      if (syncSession.connected) {
+        void loadRemoteSnapshot();
+      }
+    });
   }
 
   const initialSnapshot = readStoredLocalSnapshot();
@@ -641,7 +649,7 @@
     }
 
     if (!syncSession.connected) {
-      setFeedback("Saved locally. Connect cloud sync when you are ready.", "neutral");
+      setFeedback("Saved locally. Sign in to also keep this progress online.", "neutral");
       return;
     }
 
@@ -656,10 +664,5 @@
   installStyles();
   installPanel();
   updateSyncUi();
-
-  const savedSettings = readSyncSettings();
-  if (savedSettings.syncKey) {
-    setFeedback("Saved cloud settings found on this device. Reconnecting...", "neutral");
-    void connectSync();
-  }
+  void hydrateSession();
 })();
