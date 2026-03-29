@@ -21,8 +21,6 @@
     feedbackTone: "neutral",
     lastSyncedAt: 0
   };
-  const SETTINGS_KEY = "jc_roadmap_supabase_email_v1";
-
   function normalizeBooleanMap(value) {
     if (!value || typeof value !== "object" || Array.isArray(value)) {
       return {};
@@ -97,29 +95,15 @@
     render();
   }
 
-  function readSavedEmail() {
-    try {
-      return String(localStorage.getItem(SETTINGS_KEY) || "").trim();
-    } catch (_) {
-      return "";
-    }
-  }
-
-  function persistEmail(email) {
-    localStorage.setItem(SETTINGS_KEY, String(email || "").trim());
-  }
-
   function getUi() {
     return {
-      panel: document.getElementById("cloudSyncPanel"),
-      email: document.getElementById("syncEmail"),
-      sendLinkButton: document.getElementById("syncSendLinkButton"),
-      saveButton: document.getElementById("syncSaveButton"),
-      signOutButton: document.getElementById("syncSignOutButton"),
-      statusPill: document.getElementById("syncStatusPill"),
-      feedback: document.getElementById("syncFeedback"),
-      emailWrap: document.getElementById("syncEmailWrap"),
-      userLine: document.getElementById("syncUserLine")
+      panel:        document.getElementById("cloudSyncPanel"),
+      googleButton: document.getElementById("syncGoogleButton"),
+      saveButton:   document.getElementById("syncSaveButton"),
+      signOutButton:document.getElementById("syncSignOutButton"),
+      statusPill:   document.getElementById("syncStatusPill"),
+      feedback:     document.getElementById("syncFeedback"),
+      userLine:     document.getElementById("syncUserLine")
     };
   }
 
@@ -150,10 +134,6 @@
       return "Add your Supabase project URL and anon key in index.html to enable free cloud sync.";
     }
 
-    if (syncSession.mode === "sending-link") {
-      return "Sending your sign-in link...";
-    }
-
     if (syncSession.mode === "loading") {
       return "Loading cloud progress...";
     }
@@ -163,14 +143,16 @@
     }
 
     if (syncSession.connected && syncSession.user && syncSession.lastSyncedAt) {
-      return `Cloud sync is active for ${syncSession.user.email}. Last sync: ${formatTimestamp(syncSession.lastSyncedAt)}.`;
+      const name = syncSession.user.user_metadata?.full_name || syncSession.user.email;
+      return `Cloud sync is active for ${name}. Last sync: ${formatTimestamp(syncSession.lastSyncedAt)}.`;
     }
 
     if (syncSession.connected && syncSession.user) {
-      return `Signed in as ${syncSession.user.email}. Your roadmap can now sync across devices.`;
+      const name = syncSession.user.user_metadata?.full_name || syncSession.user.email;
+      return `Signed in as ${name}. Your roadmap can now sync across devices.`;
     }
 
-    return "Checklist progress still works locally. Sign in with email to save it online for free.";
+    return "Checklist progress still works locally. Sign in with Google to save it online for free.";
   }
 
   function updateSyncUi() {
@@ -186,18 +168,15 @@
 
     ui.feedback.textContent = feedbackText;
     ui.feedback.dataset.tone = syncSession.feedbackTone || "neutral";
-    ui.email.disabled = busy || syncSession.connected || !hasProjectConfig;
-    ui.sendLinkButton.disabled = busy || syncSession.connected || !hasProjectConfig;
+    ui.googleButton.disabled = busy || syncSession.connected || !hasProjectConfig;
     ui.saveButton.disabled = busy || !syncSession.connected;
     ui.signOutButton.disabled = busy || !syncSession.connected;
-    ui.emailWrap.hidden = syncSession.connected;
     ui.userLine.hidden = !syncSession.connected;
-    ui.userLine.textContent = syncSession.user ? `Signed in as ${syncSession.user.email}` : "";
+    ui.userLine.textContent = syncSession.user
+      ? `Signed in as ${syncSession.user.user_metadata?.full_name || syncSession.user.email}`
+      : "";
 
-    if (syncSession.mode === "sending-link") {
-      ui.statusPill.textContent = "Email Link";
-      ui.statusPill.dataset.state = "busy";
-    } else if (syncSession.mode === "loading" || syncSession.mode === "saving") {
+    if (syncSession.mode === "loading" || syncSession.mode === "saving") {
       ui.statusPill.textContent = "Syncing";
       ui.statusPill.dataset.state = "busy";
     } else if (hasError) {
@@ -353,43 +332,23 @@
     }, 500);
   }
 
-  async function sendMagicLink() {
-    const ui = getUi();
-    const email = String(ui.email.value || "").trim().toLowerCase();
-
-    if (!email || !email.includes("@")) {
-      setFeedback("Enter a valid email address first.", "error");
-      return;
-    }
-
+  async function signInWithGoogle() {
     const client = createClient();
     if (!client) {
       setFeedback("Supabase is not configured yet in index.html.", "error");
       return;
     }
 
-    syncSession.mode = "sending-link";
-    persistEmail(email);
-    updateSyncUi();
+    const redirectTo = window.location.origin + window.location.pathname;
+    const { error } = await client.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo }
+    });
 
-    try {
-      const redirectTo = window.location.origin + window.location.pathname;
-      const { error } = await client.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: redirectTo }
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      setFeedback(`Magic link sent to ${email}. Open it on any device to sync your roadmap there too.`, "success");
-    } catch (error) {
-      setFeedback(`Could not send sign-in link: ${error.message}`, "error");
-    } finally {
-      syncSession.mode = "idle";
-      updateSyncUi();
+    if (error) {
+      setFeedback(`Could not start Google sign-in: ${error.message}`, "error");
     }
+    // On success the browser navigates to Google — no further UI update needed here.
   }
 
   async function signOut() {
@@ -538,6 +497,11 @@
       .cloud-sync-feedback[data-tone="success"] {
         color: #86efac;
       }
+      .cloud-sync-google-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
     `;
     document.head.appendChild(style);
   }
@@ -552,7 +516,6 @@
       return;
     }
 
-    const savedEmail = readSavedEmail();
     const card = document.createElement("section");
     card.id = "cloudSyncPanel";
     card.className = "cloud-sync-card";
@@ -565,16 +528,18 @@
         <span class="cloud-sync-pill" id="syncStatusPill" data-state="neutral">Local Only</span>
       </div>
       <p class="cloud-sync-copy">
-        This roadmap can use Supabase's free tier as a web-based backend. Sign in with email and your checklist will sync across devices while the site stays static.
+        Sign in with your Google account and your checklist will sync across all your devices. The site stays fully static — Supabase's free tier handles the backend.
       </p>
-      <div class="cloud-sync-grid">
-        <label class="cloud-sync-field" id="syncEmailWrap">
-          <span>Email</span>
-          <input id="syncEmail" type="email" placeholder="you@example.com" value="${savedEmail}">
-        </label>
-      </div>
       <div class="cloud-sync-actions">
-        <button id="syncSendLinkButton" type="button">Send Sign-In Link</button>
+        <button id="syncGoogleButton" type="button" class="cloud-sync-google-btn">
+          <svg width="16" height="16" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="flex-shrink:0">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+            <path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+          Sign in with Google
+        </button>
         <button id="syncSaveButton" type="button">Sync Now</button>
         <button id="syncSignOutButton" type="button">Sign Out</button>
       </div>
@@ -585,8 +550,8 @@
     progressCard.insertAdjacentElement("afterend", card);
 
     const ui = getUi();
-    ui.sendLinkButton.addEventListener("click", () => {
-      void sendMagicLink();
+    ui.googleButton.addEventListener("click", () => {
+      void signInWithGoogle();
     });
     ui.saveButton.addEventListener("click", async () => {
       try {
